@@ -1,0 +1,13 @@
+version: "3.8"
+
+services:
+  playwright:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: playwright-test
+    working_dir: /app
+    volumes:
+      - .:/app
+      - ./playwright-report:/app/playwright-report
+    command: "npm run test:api"

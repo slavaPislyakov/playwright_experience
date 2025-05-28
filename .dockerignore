@@ -1,0 +1,8 @@
+.vscode
+allure-results
+node_modules
+playwright-report
+test-results
+test-examples
+ui
+uiAlfa

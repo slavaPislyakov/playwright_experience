@@ -1,0 +1,49 @@
+{
+  "name": "playwright_experience",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "prettier:format": "prettier --config .prettierrc.json 'api/**/*.{ts,json}' --write",
+    "lint": "eslint -c eslint.config.mjs 'ui/**/*.{ts,json}'",
+    "lint:fix": "eslint -c eslint.config.mjs 'api/**/*.{ts,json}' --quiet --fix",
+    "allure:report": "allure serve allure-results",
+    "playwright:ui:mode": "npx playwright test --ui",
+    "playwright:test:api": "npx playwright test --project=api",
+    "playwright:test:ui": "npx playwright test --project=ui",
+    "playwright:test:visual_testing": "npx playwright test --project=visual_testing",
+    "playwright:test:visual_testing:update": "npx playwright test --project=visual_testing --update-snapshots",
+    "lint:file": "eslint -c eslint.config.mjs 'ui/steps/mainPageStep.ts' --fix"
+  },
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "lint-staged": {
+    "*.ts": [
+      "npm run lint"
+    ]
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.16.0",
+    "@playwright/test": "^1.52.0",
+    "@types/node": "^22.1.0",
+    "@typescript-eslint/eslint-plugin": "^8.0.1",
+    "@typescript-eslint/parser": "^8.17.0",
+    "ajv": "^8.17.1",
+    "ajv-errors": "^3.0.0",
+    "allure-playwright": "^3.0.6",
+    "cross-env": "^7.0.3",
+    "eslint": "^9.16.0",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-import-resolver-typescript": "^4.3.4",
+    "eslint-plugin-prettier": "^5.2.1",
+    "eslint-plugin-simple-import-sort": "^12.1.1",
+    "husky": "^9.1.7",
+    "lint-staged": "^15.2.8",
+    "prettier": "^3.4.2",
+    "typescript-eslint": "^8.17.0"
+  },
+  "dependencies": {
+    "dotenv": "^16.4.5",
+    "globals": "^15.13.0"
+  }
+}
