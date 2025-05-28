@@ -7,12 +7,11 @@
     "lint": "eslint -c eslint.config.mjs 'ui/**/*.{ts,json}'",
     "lint:fix": "eslint -c eslint.config.mjs 'api/**/*.{ts,json}' --quiet --fix",
     "allure:report": "allure serve allure-results",
-    "playwright:ui:mode": "npx playwright test --ui",
-    "playwright:test:api": "npx playwright test --project=api",
-    "playwright:test:ui": "npx playwright test --project=ui",
-    "playwright:test:visual_testing": "npx playwright test --project=visual_testing",
-    "playwright:test:visual_testing:update": "npx playwright test --project=visual_testing --update-snapshots",
-    "lint:file": "eslint -c eslint.config.mjs 'ui/steps/mainPageStep.ts' --fix"
+    "ui:mode": "npx playwright test --ui",
+    "test:api": "npx playwright test --project=api",
+    "test:ui": "npx playwright test --project=ui",
+    "test:visual_testing": "npx playwright test --project=visual_testing",
+    "test:visual_testing:update": "npx playwright test --project=visual_testing --update-snapshots"
   },
   "author": "",
   "license": "ISC",

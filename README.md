@@ -28,15 +28,15 @@ make docker-build
 make docker-run
 ```
 
-### Run `VISUAL TESTING` tests locally:
+### Run `VISUAL TESTING` locally:
 
-1. run visual testing tests:
+1. Run visual testing tests:
 
 ```bash
 npm run playwright:test:visual_testing
 ```
 
-2. update existing screenshots:
+2. Update existing screenshots:
 
 ```bash
 npm run playwright:test:visual_testing:update
