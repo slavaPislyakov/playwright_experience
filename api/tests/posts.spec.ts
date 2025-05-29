@@ -11,6 +11,8 @@ import {
 } from "@@/api/types/response/posts/postsSchemas";
 
 test.describe("Check 'POSTS' endpoint", () => {
+  test.use({ role: "guest" });
+
   test("Check 'GET /posts' endpoint", async ({ postsApiClient, requestAssertions }) => {
     const response = await postsApiClient.getAllPosts();
 
