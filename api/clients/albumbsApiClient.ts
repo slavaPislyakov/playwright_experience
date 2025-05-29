@@ -7,7 +7,7 @@ import { URLS } from "@@/api/data/urls";
 import { stringFormat } from "@@/api/utils/stringUtils";
 
 export class AlbumsApiClient extends BaseApiClient {
-  constructor(protected context: APIRequestContext) {
+  constructor(context: APIRequestContext) {
     super(context);
   }
 

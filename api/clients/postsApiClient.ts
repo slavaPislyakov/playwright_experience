@@ -4,11 +4,20 @@ import { BaseApiClient } from "@@/api/clients/baseApiClient";
 
 import { URLS } from "@@/api/data/urls";
 
+import { Role } from "@@/api/types/common/roles";
+
 import { stringFormat } from "@@/api/utils/stringUtils";
 
 export class PostsApiClient extends BaseApiClient {
-  constructor(protected context: APIRequestContext) {
+  constructor(
+    context: APIRequestContext,
+    private role: Role,
+  ) {
     super(context);
+
+    if (this.role !== "guest") {
+      void this.login(role); // авто-логин при создании клиента
+    }
   }
 
   async getAllPosts(): Promise<APIResponse> {

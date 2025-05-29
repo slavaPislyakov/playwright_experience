@@ -1,17 +1,11 @@
 # My custom playwright framework
 
-## Run tests:
+## Run `API` tests
+
+### Run API tests locally:
 
 ```bash
-
-```
-
-### Run tests for specific project:
-
-### Run `API` tests locally:
-
-```bash
-npx playwright test --project=API
+npm run test:api
 ```
 
 ### Run API tests in docker:
@@ -28,7 +22,19 @@ make docker-build
 make docker-run
 ```
 
-### Run `VISUAL TESTING` locally:
+3. Run docker-compose:
+
+```bash
+make docker-compose-run
+```
+
+1. Delete docker container after test-running:
+
+```bash
+make docker-compose-stop
+```
+
+## Run `visual` testing locally:
 
 1. Run visual testing tests:
 
@@ -42,17 +48,14 @@ npm run playwright:test:visual_testing
 npm run playwright:test:visual_testing:update
 ```
 
+---
+
 # TODO:
 
 - add playwright aria snapshot testing
-- add snapshots/screenshots testing for a few pages
 - add mobile testing like https://medium.com/the-testing-hub/testing-mobile-web-applications-with-playwright-8fc5214c6c2b
 - fix all projects according to eslint rules
-
-## API:
-
-- докинуть для проверки схемы JSONSchemaType с AJV
-- познакмиться с options для ajv
+- add trace to report
 
 ## UI:
 
@@ -63,22 +66,10 @@ npm run playwright:test:visual_testing:update
 - докинуть степы для аллюр репорта
 - Подумать как можно облегчить образ для докера
 
-## ESLint template
-
-```js
-export default [
-  { ignores: ["**/.angular/*", "**/test/*"] },
-  {
-    files: ["**/*.ts"],
-    languageOptions: {},
-    plugins: {},
-    rules: {},
-  },
-];
-```
-
 ---
 
-# Playwright: tips and tricks
+# Tips&Tricks
+
+## Playwright: tips and tricks
 
 1. `exceptionLogger` - фикстура для отлавливания ошибок на сайте в консоле
