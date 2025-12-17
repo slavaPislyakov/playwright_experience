@@ -1,8 +1,6 @@
 export const URLS = {
-  POSTS: {
-    POSTS_ALL: "/posts",
-    POSTS_ID: "/posts/{0}",
-    POSTS_ID_COMMENTS: "/posts/{0}/comments",
+  API_SPORTS: {
+    LEAGUE_ID: "/leagues?id={0}",
   },
   ALBUMS: {
     ALBUMS_ALL: "/albums",

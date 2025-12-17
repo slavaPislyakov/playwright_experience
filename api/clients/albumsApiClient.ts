@@ -4,11 +4,12 @@ import { BaseApiClient } from "@@/api/clients/baseApiClient";
 
 import { URLS } from "@@/api/data/urls";
 
+import { UserRole } from "@@/api/utils/headerUtils";
 import { stringFormat } from "@@/api/utils/stringUtils";
 
 export class AlbumsApiClient extends BaseApiClient {
-  constructor(context: APIRequestContext) {
-    super(context);
+  constructor(request: APIRequestContext, role: UserRole) {
+    super(request, role);
   }
 
   async getAllAlbums(): Promise<APIResponse> {

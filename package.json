@@ -3,15 +3,12 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "prettier:format": "prettier --config .prettierrc.json 'api/**/*.{ts,json}' --write",
-    "lint": "eslint -c eslint.config.mjs 'ui/**/*.{ts,json}'",
+    "lint": "eslint -c eslint.config.mjs 'api/**/*.{ts,json}'",
     "lint:fix": "eslint -c eslint.config.mjs 'api/**/*.{ts,json}' --quiet --fix",
     "allure:report": "allure serve allure-results",
     "ui:mode": "npx playwright test --ui",
-    "test:api": "npx playwright test --project=api",
-    "test:ui": "npx playwright test --project=ui",
-    "test:visual_testing": "npx playwright test --project=visual_testing",
-    "test:visual_testing:update": "npx playwright test --project=visual_testing --update-snapshots"
+    "test:api:oauth": "rm -rf allure-results && npx playwright test --project=apiOAuth",
+    "test:ui": "npx playwright test --project=ui"
   },
   "author": "",
   "license": "ISC",
@@ -22,27 +19,28 @@
     ]
   },
   "devDependencies": {
-    "@eslint/js": "^9.16.0",
-    "@playwright/test": "^1.52.0",
-    "@types/node": "^22.1.0",
-    "@typescript-eslint/eslint-plugin": "^8.0.1",
-    "@typescript-eslint/parser": "^8.17.0",
+    "@eslint/js": "^9.39.2",
+    "@stylistic/eslint-plugin": "^5.6.1",
+    "@types/node": "^22.19.0",
+    "@typescript-eslint/eslint-plugin": "^8.50.0",
+    "@typescript-eslint/parser": "^8.50.0",
     "ajv": "^8.17.1",
     "ajv-errors": "^3.0.0",
-    "allure-playwright": "^3.0.6",
-    "cross-env": "^7.0.3",
-    "eslint": "^9.16.0",
-    "eslint-config-prettier": "^9.1.0",
-    "eslint-import-resolver-typescript": "^4.3.4",
-    "eslint-plugin-prettier": "^5.2.1",
+    "allure-playwright": "^3.4.3",
+    "cross-env": "^10.1.0",
+    "eslint": "^9.39.2",
+    "eslint-import-resolver-typescript": "^4.4.4",
+    "eslint-plugin-jsonc": "^2.21.0",
     "eslint-plugin-simple-import-sort": "^12.1.1",
     "husky": "^9.1.7",
-    "lint-staged": "^15.2.8",
-    "prettier": "^3.4.2",
-    "typescript-eslint": "^8.17.0"
+    "jsonc-eslint-parser": "^2.4.2",
+    "lint-staged": "^16.2.7",
+    "typescript-eslint": "^8.50.0",
+    "zod": "^4.2.1"
   },
   "dependencies": {
-    "dotenv": "^16.4.5",
-    "globals": "^15.13.0"
+    "dotenv": "^17.2.3",
+    "globals": "^16.5.0",
+    "playwright": "^1.57.0"
   }
 }

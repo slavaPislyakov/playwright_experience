@@ -2,45 +2,105 @@ import { APIRequestContext, APIResponse } from "@playwright/test";
 
 import { Role } from "@@/api/types/common/roles";
 
+import { getAuthHeaders } from "@@/api/utils/headerUtils";
+import { ApiLogger } from "@@/api/utils/logger";
+
+export interface RequestOptions {
+  headers?: Record<string, string>;
+  [key: string]: unknown;
+}
+
 export abstract class BaseApiClient {
-  private token: string | null = null;
+  private defaultHeaders: Record<string, string>;
+  private role: Role;
+  private logger: ApiLogger;
+  private baseUrl: string;
 
-  constructor(private readonly context: APIRequestContext) {}
+  constructor(private readonly request: APIRequestContext, role: Role) {
+    this.role = role;
+    this.baseUrl = process.env.BASE_URL ?? "undefined";
+    ;
 
-  protected async login(role: Role): Promise<string | null> {
-    let response: APIResponse;
-    if (role === "admin") {
-      response = await this.context.post("/auth/login", {
-        data: { username: "admin", password: "secret" },
-      });
-    } else {
-      response = await this.context.post("/auth/login", {
-        data: { username: "user", password: "password" },
-      });
-    }
+    this.logger = new ApiLogger(true);
 
-    const data = await response.json();
-    this.token = data.accessToken;
-    return this.token;
+    this.defaultHeaders = {
+      "Content-Type": "application/json",
+      ...getAuthHeaders(this.role),
+    };
   }
 
-  protected async getMethod(url: string): Promise<APIResponse> {
-    return await this.context.get(url);
+  private mergeHeaders(customHeaders?: Record<string, string>): Record<string, string> {
+    return {
+      ...this.defaultHeaders,
+      ...customHeaders,
+    };
   }
 
-  protected async postMethod(url: string, body: unknown): Promise<APIResponse> {
-    return await this.context.post(url, { data: body });
+  protected async getMethod(path: string, options: RequestOptions = {}): Promise<APIResponse> {
+    const url = `${this.baseUrl}${path}`;
+    const mergedHeaders = this.mergeHeaders(options.headers);
+    const requestOptions = { headers: mergedHeaders, ...options };
+
+    this.logger.logRequest("GET", url, requestOptions);
+    const response = await this.request.get(url, requestOptions);
+    await this.logger.logResponse(response);
+
+    return response;
   }
 
-  protected async putMethod(url: string, body: unknown): Promise<APIResponse> {
-    return await this.context.put(url, { data: body });
+  protected async postMethod(path: string, data: unknown, options: RequestOptions = {}): Promise<APIResponse> {
+    const url = `${this.baseUrl}${path}`;
+    const mergedHeaders = this.mergeHeaders(options.headers);
+    const requestOptions = { data, headers: mergedHeaders, ...options };
+
+    this.logger.logRequest("POST", url, requestOptions);
+    const response = await this.request.post(url, requestOptions);
+    await this.logger.logResponse(response);
+
+    return response;
   }
 
-  protected async patchMethod(url: string, body: unknown): Promise<APIResponse> {
-    return await this.context.patch(url, { data: body });
+  protected async putMethod(path: string, data: unknown, options: RequestOptions = {}): Promise<APIResponse> {
+    const url = `${this.baseUrl}${path}`;
+    const mergedHeaders = this.mergeHeaders(options.headers);
+    const requestOptions = { data, headers: mergedHeaders, ...options };
+
+    this.logger.logRequest("PUT", url, requestOptions);
+    const response = await this.request.put(url, requestOptions);
+    await this.logger.logResponse(response);
+
+    return response;
   }
 
-  protected async deleteMethod(url: string): Promise<APIResponse> {
-    return await this.context.delete(url);
+  protected async patchMethod(path: string, data: unknown, options: RequestOptions = {}): Promise<APIResponse> {
+    const url = `${this.baseUrl}${path}`;
+    const mergedHeaders = this.mergeHeaders(options.headers);
+    const requestOptions = { data, headers: mergedHeaders, ...options };
+
+    this.logger.logRequest("PATCH", url, requestOptions);
+    const response = await this.request.patch(url, requestOptions);
+    await this.logger.logResponse(response);
+
+    return response;
+  }
+
+  protected async deleteMethod(path: string, options: RequestOptions = {}): Promise<APIResponse> {
+    const url = `${this.baseUrl}${path}`;
+    const mergedHeaders = this.mergeHeaders(options.headers);
+    const requestOptions = { headers: mergedHeaders, ...options };
+
+    this.logger.logRequest("DELETE", url, requestOptions);
+    const response = await this.request.delete(url, requestOptions);
+    await this.logger.logResponse(response);
+
+    return response;
+  }
+
+  enableLogging(): void {
+    this.logger.enable();
+  }
+
+  disableLogging(): void {
+    this.logger.disable();
   }
 }

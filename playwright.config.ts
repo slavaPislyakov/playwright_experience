@@ -11,6 +11,7 @@ dotenv.config({ path: path.resolve(__dirname, ".env") });
  * See https://playwright.dev/docs/test-configuration.
  */
 export default defineConfig({
+  // ===GLOBAL_SETTINGS===
   // testDir: './tests',
   /* Run tests in files in parallel */
   fullyParallel: true,
@@ -22,9 +23,16 @@ export default defineConfig({
   workers: process.env.CI ? 1 : undefined,
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
   reporter: [
-    ["html", { outputFolder: "playwright-report", open: "never" }],
+    ["html", { outputFolder: "playwright-report", open: "never", title: "My Report" }],
     ["allure-playwright", { outputFolder: "allure-results" }],
   ],
+
+//   // ===GLOBAL_SETTINGS_FOR_EXPECTED===
+//   expect: {
+// },
+
+
+  // ===SETTINGS_FOR_ALL_PROJECTS===
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {
     /* Base URL to use in actions like `await page.goto('/')`. */
@@ -37,32 +45,29 @@ export default defineConfig({
     video: "on-first-retry",
   },
 
+  // ===SETTINGS_FOR_EVERY_PROJECTS===
   /* Configure projects for major browsers */
   projects: [
+    { name: "setup", testMatch: /.*\.setup\.ts/ },
     {
-      name: "api",
-      use: { ...devices["Desktop Chrome"], baseURL: process.env.BASE_URL_API },
-      testDir: "./api/tests",
+      name: "apiOAuth",
+      use: { ...devices["Desktop Chrome"] },
+      testDir: "./api/tests/apiOAuth",
+    },
+    {
+      name: "noOAuth",
+      use: { ...devices["Desktop Chrome"] },
+      testDir: "./api/tests/noAuth",
     },
     {
       name: "ui",
       use: { ...devices["Desktop Chrome"] },
       testDir: "./ui/tests",
-    },
-    {
-      name: "uiAlfa",
-      use: { ...devices["Desktop Chrome"] },
-      testDir: "./uiAlfa/tests",
-    },
-    {
-      name: "visual_testing",
-      use: { ...devices["Desktop Chrome"], viewport: { width: 1920, height: 1080 }, ignoreHTTPSErrors: true },
-      testDir: "./visual_testing/tests",
-      snapshotPathTemplate: "{snapshotDir}/{testFilePath}-snapshots/{arg}{ext}",
-      snapshotDir: "./visual_testing/screenshots/",
-    },
+      dependencies: ["setup"],
+    }
 
     // {
+
     //   name: 'firefox',
     //   use: { ...devices['Desktop Firefox'] },
     // },

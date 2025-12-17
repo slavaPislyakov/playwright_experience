@@ -1,29 +1,32 @@
-import { test as base } from "@playwright/test";
+import { expect, test as base } from "@playwright/test";
 
-import { AlbumsApiClient } from "@@/api/clients/albumbsApiClient";
-import { PostsApiClient } from "@@/api/clients/postsApiClient";
-
-import { RequestAssertions } from "@@/api/assertions/requestAssertions";
+import { AlbumsApiClient } from "@@/api/clients/albumsApiClient";
+import { APISportsIOApiClient } from "@@/api/clients/apiSportsIOApiClient";
 
 import { Role } from "@@/api/types/common/roles";
 
+import { RequestAssertions } from "../assertions/RequestAssertions.1";
+
 type MyFixture = {
-  postsApiClient: PostsApiClient;
   albumsApiClient: AlbumsApiClient;
+  apiSportsIOApiClient: APISportsIOApiClient;
   requestAssertions: RequestAssertions;
   role: Role;
 };
 
 export const test = base.extend<MyFixture>({
-  role: ["user", { option: true }],
-  postsApiClient: async ({ request, role }, use) => {
-    await use(new PostsApiClient(request, role));
+  role: ["guest", { option: true }],
+
+  albumsApiClient: async ({ request, role }, use) => {
+    await use(new AlbumsApiClient(request, role));
   },
-  albumsApiClient: async ({ request }, use) => {
-    await use(new AlbumsApiClient(request));
+  apiSportsIOApiClient: async ({ request, role }, use) => {
+    await use(new APISportsIOApiClient(request, role));
   },
   // eslint-disable-next-line no-empty-pattern
   requestAssertions: async ({}, use) => {
     await use(new RequestAssertions());
   },
 });
+
+export { expect };
