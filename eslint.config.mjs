@@ -16,11 +16,19 @@ const baseCodeRules = {
   "linebreak-style": ["error", "unix"],
   "no-console": "error",
   "comma-spacing": ["error", { before: false, after: true }],
+  // 🎯 ДОБАВЛЯЕМ: Это правило превращает "a" + b в `a${b}`
+  "prefer-template": "error",
+  // 🎯 ДОБАВЛЯЕМ: Ловит ${} внутри обычных кавычек и ругается
+  "no-template-curly-in-string": "warn",
 };
 
 // Стилистические правила
 const stylisticRules = {
-  "@stylistic/quotes": ["error", "double"],
+  "@stylistic/quotes": ["error",
+    "double",
+    {
+      avoidEscape: true,
+    }],
   "@stylistic/semi": ["error", "always"],
   "@stylistic/indent": ["error", 2],
   "@stylistic/comma-dangle": ["error", "always-multiline"],
@@ -41,6 +49,8 @@ const stylisticRules = {
       ignoreStrings: true,
       ignoreTemplateLiterals: true,
     }],
+  "@stylistic/type-annotation-spacing": "error",
+  "@stylistic/template-curly-spacing": ["error", "never"],
 };
 
 // Правила переносов строк

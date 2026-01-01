@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "lint": "eslint -c eslint.config.mjs 'api/**/*.{ts,json}'",
+    "lint": "eslint -c eslint.config.mjs '{ui,api}/**/*.{ts,json}'",
     "lint:fix": "eslint -c eslint.config.mjs 'api/**/*.{ts,json}' --quiet --fix",
     "allure:report": "allure serve allure-results",
     "ui:mode": "npx playwright test --ui",
