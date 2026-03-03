@@ -1,4 +1,9 @@
-export type UserRole = "authorized" | "guest";
+import { requireEnv } from "@@/api/utils/envUtils";
+
+export enum UserRole {
+  AUTHORIZED = "authorized",
+  GUEST = "guest",
+}
 
 export interface ApiUser {
   apiKey?: string;
@@ -7,28 +12,26 @@ export interface ApiUser {
 
 export const API_USERS: Record<UserRole, ApiUser> = {
   authorized: {
-    apiKey: process.env.API_KEY,
-    role: "authorized",
+    apiKey: requireEnv("API_KEY"),
+    role: UserRole.AUTHORIZED,
   },
   guest: {
     apiKey: undefined,
-    role: "guest",
+    role: UserRole.GUEST,
   },
 } as const;
 
-export const getAuthHeaders = (role: UserRole): Record<string, string> => {
+export const getAuthHeaders = (role: UserRole): Record<string, string | undefined> => {
   const user = API_USERS[role];
 
   if (!user) {
     throw new Error(`Unknown role: ${role}`);
   }
 
-  const headers: Record<string, string> = {
-    // "X-User-Role": user.role,
-  };
+  const headers: Record<string, string | undefined> = {};
 
-  if (user.apiKey) {
-    headers["x-apisports-key"] = user.apiKey;
+  if (user.role === UserRole.AUTHORIZED) {
+    headers["x-rapidapi-key"] = user.apiKey;
   }
 
   return headers;

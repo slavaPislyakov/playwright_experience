@@ -8,8 +8,8 @@ import { UserRole } from "@@/api/utils/headerUtils";
 import { stringFormat } from "@@/api/utils/stringUtils";
 
 export class AlbumsApiClient extends BaseApiClient {
-  constructor(request: APIRequestContext, role: UserRole) {
-    super(request, role);
+  constructor(request: APIRequestContext, role: UserRole, baseURL?: string) {
+    super(request, role, baseURL);
   }
 
   async getAllAlbums(): Promise<APIResponse> {

@@ -3,59 +3,20 @@ import { JSONSchemaType } from "ajv";
 import { IError } from "@@/api/types/response/apiSportsIO/error/errorInterface";
 
 export const errorSchema: JSONSchemaType<IError> = {
-  "type": "object",
-  "properties": {
-    "get": {
-      "type": "string",
+  type: "object",
+  properties: {
+    status: {
+      type: "integer",
+      minimum: 400,
+      maximum: 599,
+      description: "HTTP status code",
     },
-    "parameters": {
-      "type": "array",
-      "items": {
-        "type": "object",
-        "additionalProperties": true,
-      },
-    },
-    "errors": {
-      "type": "object",
-      "properties": {
-        "token": {
-          "type": "string",
-        },
-        "error": {
-          "type": "string",
-        },
-      },
-      "required": ["token", "error"],
-    },
-    "results": {
-      "type": "number",
-    },
-    "paging": {
-      "type": "object",
-      "properties": {
-        "current": {
-          "type": "number",
-        },
-        "total": {
-          "type": "number",
-        },
-      },
-      "required": ["current", "total"],
-    },
-    "response": {
-      "type": "array",
-      "items": {
-        "type": "object",
-        "additionalProperties": true,
-      },
+    error: {
+      type: "string",
+      minLength: 1,
+      description: "Error message",
     },
   },
-  "required": [
-    "get",
-    "parameters",
-    "errors",
-    "results",
-    "paging",
-    "response",
-  ],
+  required: ["status", "error"],
+  additionalProperties: false,
 };

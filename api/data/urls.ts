@@ -1,6 +1,6 @@
 export const URLS = {
   API_SPORTS: {
-    LEAGUE_ID: "/leagues?id={0}",
+    COUNTRY_CODE: "/countries/{0}",
   },
   ALBUMS: {
     ALBUMS_ALL: "/albums",

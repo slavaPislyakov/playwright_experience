@@ -2,8 +2,8 @@ import eslintJS from "@eslint/js";
 import stylistic from "@stylistic/eslint-plugin";
 import eslintPluginTS from "@typescript-eslint/eslint-plugin";
 import eslintParserTS from "@typescript-eslint/parser";
+import importPlugin from "eslint-plugin-import";
 import jsoncPlugin from "eslint-plugin-jsonc";
-import simpleImportSort from "eslint-plugin-simple-import-sort";
 import globals from "globals";
 import jsonParser from "jsonc-eslint-parser";
 import eslintTS from "typescript-eslint";
@@ -94,27 +94,29 @@ const typescriptRules = {
   "@typescript-eslint/no-explicit-any": ["error", { fixToUnknown: true }],
 };
 
-// Правила сортировки импортов
 const importRules = {
-  "simple-import-sort/imports": [
+  "import/order": [
     "error",
     {
-      groups: [
-        ["^@?\\w"],
-        ["^@@/api/fixtures/"],
-        ["^@@/api/clients/"],
-        ["^@@/api/assertions/"],
-        ["^@@/api/data/"],
-        ["^@@/api/types/"],
-        ["^@@/api/utils/"],
-        ["^@@/ui/fixtures/"],
-        ["^@@/ui/steps/"],
-        ["^@@/ui/pages/"],
-        ["^@@/ui/components/"],
+      "groups": ["external", "builtin", "internal", "parent", "sibling", "index", "object"],
+      "pathGroups": [
+        { pattern: "@@/api/fixtures/**", group: "internal" },
+        { pattern: "@@/api/clients/**", group: "internal", position: "after" },
+        { pattern: "@@/api/assertions/**", group: "internal", position: "after" },
+        { pattern: "@@/api/data/**", group: "internal", position: "after" },
+        { pattern: "@@/api/types/**", group: "internal", position: "after" },
+        { pattern: "@@/api/utils/**", group: "internal", position: "after" },
+        { pattern: "@@/ui/fixtures/**", group: "internal", position: "after" },
+        { pattern: "@@/ui/steps/**", group: "internal", position: "after" },
+        { pattern: "@@/ui/pages/**", group: "internal", position: "after" },
+        { pattern: "@@/ui/components/**", group: "internal", position: "after" },
       ],
+      "pathGroupsExcludedImportTypes": ["type"],
+      "named": true,
+      "newlines-between": "always-and-inside-groups",
     },
   ],
-  "simple-import-sort/exports": "error",
+  "import/newline-after-import": "error",
 };
 
 // === КОМБИНИРОВАННЫЕ НАБОРЫ ПРАВИЛ ===
@@ -154,8 +156,8 @@ const typeScriptConfig = {
   files: ["ui/**/*.ts", "api/**/*.ts"],
   plugins: {
     "@typescript-eslint": eslintPluginTS,
-    "simple-import-sort": simpleImportSort,
     "@stylistic": stylistic,
+    import: importPlugin,
   },
   settings: {
     "import/resolver": {

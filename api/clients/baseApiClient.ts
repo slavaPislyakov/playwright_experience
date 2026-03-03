@@ -1,8 +1,6 @@
 import { APIRequestContext, APIResponse } from "@playwright/test";
 
-import { Role } from "@@/api/types/common/roles";
-
-import { getAuthHeaders } from "@@/api/utils/headerUtils";
+import { getAuthHeaders, UserRole } from "@@/api/utils/headerUtils";
 import { ApiLogger } from "@@/api/utils/logger";
 
 export interface RequestOptions {
@@ -12,14 +10,17 @@ export interface RequestOptions {
 
 export abstract class BaseApiClient {
   private defaultHeaders: Record<string, string>;
-  private role: Role;
+  private role: UserRole;
   private logger: ApiLogger;
   private baseUrl: string;
 
-  constructor(private readonly request: APIRequestContext, role: Role) {
+  constructor(private readonly request: APIRequestContext, role: UserRole, baseURL?: string) {
     this.role = role;
-    this.baseUrl = process.env.BASE_URL ?? "undefined";
-    ;
+
+    if (!baseURL) {
+      throw new Error("❌ baseURL is required! Check playwright.config.ts or .env");
+    }
+    this.baseUrl = baseURL;
 
     this.logger = new ApiLogger(true);
 
@@ -39,6 +40,7 @@ export abstract class BaseApiClient {
   protected async getMethod(path: string, options: RequestOptions = {}): Promise<APIResponse> {
     const url = `${this.baseUrl}${path}`;
     const mergedHeaders = this.mergeHeaders(options.headers);
+
     const requestOptions = { headers: mergedHeaders, ...options };
 
     this.logger.logRequest("GET", url, requestOptions);

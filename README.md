@@ -10,7 +10,13 @@
     - [📏 Валидация схем](#-валидация-схем)
       - [1️⃣ AJV (JSON Schema)](#1️⃣-ajv-json-schema)
       - [2️⃣ Zod (TypeScript-first)](#2️⃣-zod-typescript-first)
+    - [📏 Полезные утилиты:](#-полезные-утилиты)
+      - [1️⃣ Сравнение двух объектов:](#1️⃣-сравнение-двух-объектов)
 - [🖥 UI Tests Documentation](#-ui-tests-documentation)
+  - [🚀 Базовый запуск (UI тесты)](#-базовый-запуск-ui-тесты)
+  - [🎯 Доступные фикстуры](#-доступные-фикстуры)
+    - [📌 `pageWithMonitoring`](#-pagewithmonitoring)
+    - [🔕 `failOnJSError`](#-failonjserror)
 - [📝 TODO](#-todo)
 
 ---
@@ -123,28 +129,76 @@ test('Get all albums', async ({ request }) => {
 - Отличные сообщения об ошибках
 - Схема — единственный источник истины
 
+
+#### 📏 Полезные утилиты:
+
+##### 1️⃣ Сравнение двух объектов:
+Используется для сравнение двух объектов (к примеру JSON ответа фактического и ожидаемого).
+
+**Пример:** [`api/utils/prettiObjectDiff.ts`](../api/utils/prettiObjectDiff.ts)
+
+```typescript
+export function diffObjectsPretty(expected: JSONObject, actual: JSONObject): void {
+  compareObjectsPretty(expected, actual, "");
+
+  console.log("--- Ожидаемый объект ---");
+  console.dir(expected, { depth: null });
+
+  console.log("--- Фактический объект ---");
+  console.dir(actual, { depth: null });
+}
+```
 ---
 
 ## 🖥 UI Tests Documentation
 
-_В процессе разработки..._
+### 🚀 Базовый запуск (UI тесты)
 
+```bash
+# Запуск всех UI тестов
+npm run test:ui
+
+# Запуск тестов конкретной страницы
+npx playwright test ui/tests/pages/login.spec.ts
+
+# Запуск тестов в headed режиме (видно браузер)
+npx playwright test ui/tests/pages/login.spec.ts --headed
+
+# Запуск в debug режиме
+npx playwright test ui/tests/pages/login.spec.ts --debug
+
+# Запуск с UI интерфейсом
+npx playwright test ui/tests/pages/login.spec.ts --ui
+
+# Запуск на конкретном браузере
+npx playwright test ui/tests/pages/login.spec.ts --project=chromium
+```
+---
+### 🎯 Доступные фикстуры
+
+Проект содержит набор кастомных фикстур для улучшения опыта написания UI тестов.
+
+#### 📌 `pageWithMonitoring`
+Описание: Расширенная фикстура страницы с встроенным мониторингом упавших запросов
+
+
+
+#### 🔕 `failOnJSError`
+Описание: Фикстура для отлавливания ошибок JS в консоле браузера: можно отключить, установив параметру занчение `false`
+```typescript
+test.use({ failOnJSError: false });
+```
 ---
 
 ## 📝 TODO
-- [ ] привести все проекты к eslint rules
 - [ ] добавить allure report как статичный файл на GitHub Pages ([ссылка](https://habr.com/ru/articles/914614/))
-- [ ] проверить что консоль чиста (нет ошибок)
 - [ ] разобраться дотошно с фикстурами
 - [ ] добавить сохранение логина в сессию
-- [ ] проверки консоли на ошибки ([ссылка](https://www.youtube.com/watch?v=LKMwS_u_x8Y&ab_channel=Checkly))
-- [ ] проверить snapshot ([ссылка](https://www.youtube.com/watch?v=h4EY9fYyrfY&ab_channel=Checkly))
-- [ ] steps с декораторами ([ссылка](https://youtu.be/of1v9cycTdQ))
 - [ ] добавить инфу о фейлинге тестов ([ссылка](https://www.youtube.com/watch?v=hegZS46J0rA&t=449s&ab_channel=Checkly))
-- [ ] фейленые статус-коды файлов в нетворке ([ссылка](https://www.youtube.com/watch?v=sKpwE84K9fU&t=185s&ab_channel=Checkly))
-- [ ] попробовать перейти на biome вместо eslint + prettier
-- [ ] Сделать декораторы для степов
 - [ ] Сделать проверки информационные (https://youtu.be/PYQBSpwAquw - взять за основу тут)
-- [ ] Удалить весь закоменченный код
-
+- [ ] Создать докер файл для запуска апи и юай тестов
+- [ ] докер компоуз такой же
+- [ ] подумать что написать для апи и юай в мейк файле или как сделать универсальным
+- [ ] запустить тесты в гитхабе (прописать переменный энв)
+- [ ] опубликовать аллюр гитхаб пейдже
 ---
