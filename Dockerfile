@@ -1,14 +1,14 @@
-FROM mcr.microsoft.com/playwright:v1.49.0-jammy
+FROM mcr.microsoft.com/playwright:v1.58.2-noble
 
 WORKDIR /app
 
 COPY package*.json ./
-
-RUN npm cache clean --force
-RUN npm install
+RUN npm ci
 
 COPY . .
 
-RUN npx playwright install
+# ENV TZ=Europe/Minsk
+ENV TZ=Asia/Ho_Chi_Minh
+RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
-CMD ["npm", "run", "test:api"]
+CMD ["npm", "run", "test:api:test"]

@@ -5,12 +5,12 @@ export enum UserRole {
   GUEST = "guest",
 }
 
-export interface ApiUser {
+interface ApiUser {
   apiKey?: string;
   role: UserRole;
 }
 
-export const API_USERS: Record<UserRole, ApiUser> = {
+const API_USERS: Record<UserRole, ApiUser> = {
   authorized: {
     apiKey: requireEnv("API_KEY"),
     role: UserRole.AUTHORIZED,

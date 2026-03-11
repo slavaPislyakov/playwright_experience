@@ -5,9 +5,12 @@
   "scripts": {
     "lint": "eslint -c eslint.config.mjs '{ui,api}/**/*.{ts,json}'",
     "lint:fix": "eslint -c eslint.config.mjs 'api/**/*.{ts,json}' --quiet --fix",
+    "html:report": "npx playwright show-report",
     "allure:report": "allure serve allure-results",
     "ui:mode": "npx playwright test --ui",
     "test:api:oauth": "rm -rf allure-results && npx playwright test --project=apiOAuth",
+    "test:api:no_oauth": "rm -rf allure-results && npx playwright test --project=noOAuth",
+    "test:api:test": "rm -rf allure-results && npx playwright test api/tests/noAuth/test.spec.ts",
     "test:ui": "npx playwright test --project=ui"
   },
   "author": "",
