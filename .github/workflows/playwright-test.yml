@@ -42,7 +42,7 @@ jobs:
           docker build -t pw-tests .
           mkdir -p "${{ inputs.report-folder }}"
           docker run --rm \
-            -v $(pwd)/${{ inputs.report-folder }}:/app/playwright-report \  # Для blob-report
+            -v "$(pwd)/${{ inputs.report-folder }}:/app/playwright-report" \  # Для blob-report
             -e TEST_SCRIPT 
             -e BASE_URL_AUTH 
             -e BASE_URL_NO_AUTH 
