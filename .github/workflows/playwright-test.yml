@@ -5,6 +5,9 @@ on:
       test-script:
         required: true
         type: string
+      report_folder:
+        required: true
+        type: string
     secrets:
       BASE_URL_AUTH:
         required: false
@@ -33,7 +36,7 @@ jobs:
         run: |
           docker build -t pw-tests .
           docker run --rm \
-            -v ${{ github.workspace }}/playwright-report:/app/playwright-report \
+            -v ${{ github.workspace }}/playwright-report-${{ inputs.test-script }}:/app/playwright-report \
             -e TEST_SCRIPT \
             -e BASE_URL_AUTH \
             -e BASE_URL_NO_AUTH \
@@ -42,10 +45,10 @@ jobs:
             -e CI \
             pw-tests
       
-      - name: Upload Report
+      - name: Upload ${{ inputs.report_folder }} Report
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: playwright-report-${{ inputs.test-script }}
-          path: playwright-report/
+          name: ${{ inputs.report_folder }}
+          path: ${{ inputs.report_folder }}/
           retention-days: 7
