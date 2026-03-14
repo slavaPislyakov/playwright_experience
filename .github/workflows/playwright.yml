@@ -30,7 +30,12 @@ jobs:
   deploy-oauth:
     needs: [oauth]
     runs-on: ubuntu-latest
+    permissions:
+      contents: write 
     steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - uses: actions/download-artifact@v4
         with:
           name: playwright-report-oauth
@@ -41,6 +46,8 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./oauth-report/playwright-report
           destination_dir: reports/${{ github.run_id }}/oauth
+          allow_empty_commit: true
+          force_orphan: true
 
   # oauth-report:
   #   needs: [oauth]
