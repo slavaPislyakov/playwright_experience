@@ -55,12 +55,12 @@ jobs:
             -e CI \
             pw-tests
 
-      # This step is crucial for publishing the report
-      - name: Publish HTML report to GitHub Pages
-        if: always() # Ensures report is published even if tests fail
-        uses: peaceiris/actions-gh-pages@v4
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: playwright-report/ # The folder containing index.html
-          publish_branch: gh-pages # Name of the branch to publish to
-          keep_files: true # Optional: to keep previous reports if you implement versioning
+      # # This step is crucial for publishing the report
+      # - name: Publish HTML report to GitHub Pages
+      #   if: always() # Ensures report is published even if tests fail
+      #   uses: peaceiris/actions-gh-pages@v4
+      #   with:
+      #     github_token: ${{ secrets.GITHUB_TOKEN }}
+      #     publish_dir: playwright-report/ # The folder containing index.html
+      #     publish_branch: gh-pages # Name of the branch to publish to
+      #     keep_files: true # Optional: to keep previous reports if you implement versioning
