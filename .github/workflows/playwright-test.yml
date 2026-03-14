@@ -58,11 +58,3 @@ jobs:
           name: playwright-report-${{ inputs.report-folder }}
           path: ${{ inputs.report-folder }}/
           retention-days: 7
-
-      - name: Deploy Report to GitHub Pages
-        if: success()
-        uses: peaceiris/actions-gh-pages@v4
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./playwright-report-${{ inputs.report-folder }}
-          destination_dir: reports/${{ github.run_id }}/${{ inputs.report-folder }}
