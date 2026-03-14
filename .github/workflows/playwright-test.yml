@@ -31,7 +31,7 @@ jobs:
       - name: Run ${{ inputs.test-script }}
         env:
           TEST_SCRIPT: ${{ inputs.test-script }}
-          PLAYWRIGHT_HTML_OUTPUT_DIR: /app/playwright-report  # Папка монтируется ниже
+          PLAYWRIGHT_HTML_OUTPUT_DIR: /app/html-report
           PLAYWRIGHT_HTML_OPEN: never  # Не открывать браузер
           BASE_URL_AUTH: ${{ secrets.BASE_URL_AUTH }}
           BASE_URL_NO_AUTH: ${{ secrets.BASE_URL_NO_AUTH }}
@@ -41,10 +41,11 @@ jobs:
         run: |
           docker build -t pw-tests .
 
-          mkdir -p "${{ inputs.report-folder }}"
+          mkdir -p html-report
           
           docker run --rm \
-            -v $(pwd)/${{ inputs.report-folder }}:/app/playwright-report \
+            -v $(pwd)/html-report:/app/html-report \
+            -v $(pwd)/${{ inputs.report-folder }}:/app/test-results \
             -e TEST_SCRIPT \
             -e PLAYWRIGHT_HTML_OUTPUT_DIR \
             -e PLAYWRIGHT_HTML_OPEN \
@@ -55,10 +56,9 @@ jobs:
             -e CI \
             pw-tests
       
-      - name: Upload ${{ inputs.report-folder }} Report
-        if: always()
+      - name: Upload HTML Report
         uses: actions/upload-artifact@v4
         with:
           name: playwright-report-${{ inputs.report-folder }}
-          path: ${{ inputs.report-folder }}/
+          path: html-report/  # Теперь здесь готовый HTML!
           retention-days: 7
