@@ -1,59 +1,62 @@
-# name: Playwright Test
-# on:
-#   workflow_call:
-#     inputs:
-#       test-script:
-#         description: 'npm run command'
-#         required: true
-#         type: string
-#       report-folder:
-#         description: 'Report folder'
-#         required: true
-#         type: string
-#     secrets:
-#       BASE_URL_AUTH:
-#         required: false
-#       BASE_URL_NO_AUTH:
-#         required: false
-#       BASE_URL_UI:
-#         required: false
-#       API_KEY:
-#         required: false
+name: Playwright Test
+on:
+  workflow_call:
+    inputs:
+      test-script:
+        description: 'npm run command'
+        required: true
+        type: string
+      report-folder:
+        description: 'Report folder'
+        required: true
+        type: string
+    secrets:
+      BASE_URL_AUTH:
+        required: false
+      BASE_URL_NO_AUTH:
+        required: false
+      BASE_URL_UI:
+        required: false
+      API_KEY:
+        required: false
 
-# jobs:
-#   test:
-#     timeout-minutes: 30
-#     runs-on: ubuntu-latest
-#     steps:
-#       - uses: actions/checkout@v4
+jobs:
+  test:
+    timeout-minutes: 30
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
       
-#       - name: Setup Node  # Добавьте для npx в контейнере
-#         uses: actions/setup-node@v4
-#         with:
-#           node-version: 20
+      - name: Setup Node  # Добавьте для npx в контейнере
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
       
-#       - name: Run ${{ inputs.test-script }}
-#         env:
-#           TEST_SCRIPT: ${{ inputs.test-script }}
-#           BASE_URL_AUTH: ${{ secrets.BASE_URL_AUTH }}
-#           # Уберите HTML env — используем стандартный blob + show-report
-#           CI: "true"
-#         run: |
-#           docker build -t pw-tests .
-#           mkdir -p "${{ inputs.report-folder }}"
-#           docker run --rm \
-#             -v $(pwd)/${{ inputs.report-folder }}:/app/playwright-report \  # Для blob-report
-#             -e TEST_SCRIPT 
-#             -e BASE_URL_AUTH 
-#             -e BASE_URL_NO_AUTH 
-#             -e BASE_URL_UI 
-#             -e API_KEY 
-#             -e CI 
-#             pw-tests
-      
-#       - name: Upload Raw Report Artifact
-#         uses: actions/upload-artifact@v4
-#         with:
-#           name: playwright-report-${{ inputs.report-folder }}
-#           path: ${{ inputs.report-folder }}/  # playwright-report/ внутри
-#           retention-days: 7
+      - name: Run ${{ inputs.test-script }}
+        env:
+          TEST_SCRIPT: ${{ inputs.test-script }}
+          BASE_URL_AUTH: ${{ secrets.BASE_URL_AUTH }}
+          # Уберите HTML env — используем стандартный blob + show-report
+          CI: "true"
+        run: |
+          docker build -t pw-tests .
+          mkdir -p "${{ inputs.report-folder }}"
+          docker run --rm \
+            -v $(pwd)/${{ inputs.report-folder }}:/app/playwright-report \  # Для blob-report
+            -e TEST_SCRIPT 
+            -e BASE_URL_AUTH 
+            -e BASE_URL_NO_AUTH 
+            -e BASE_URL_UI 
+            -e API_KEY 
+            -e CI 
+            pw-tests
+
+      # This step is crucial for publishing the report
+      - name: Publish HTML report to GitHub Pages
+        if: always() # Ensures report is published even if tests fail
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: playwright-report/ # The folder containing index.html
+          publish_branch: gh-pages # Name of the branch to publish to
+          keep_files: true # Optional: to keep previous reports if you implement versioning
