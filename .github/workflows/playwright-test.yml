@@ -31,6 +31,8 @@ jobs:
       - name: Run ${{ inputs.test-script }}
         env:
           TEST_SCRIPT: ${{ inputs.test-script }}
+          PLAYWRIGHT_HTML_OUTPUT_DIR: /app/playwright-report  # Папка монтируется ниже
+          PLAYWRIGHT_HTML_OPEN: never  # Не открывать браузер
           BASE_URL_AUTH: ${{ secrets.BASE_URL_AUTH }}
           BASE_URL_NO_AUTH: ${{ secrets.BASE_URL_NO_AUTH }}
           BASE_URL_UI: ${{ secrets.BASE_URL_UI }}
@@ -44,6 +46,8 @@ jobs:
           docker run --rm \
             -v $(pwd)/${{ inputs.report-folder }}:/app/playwright-report \
             -e TEST_SCRIPT \
+            -e PLAYWRIGHT_HTML_OUTPUT_DIR \
+            -e PLAYWRIGHT_HTML_OPEN \
             -e BASE_URL_AUTH \
             -e BASE_URL_NO_AUTH \
             -e BASE_URL_UI \

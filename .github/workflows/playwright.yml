@@ -27,88 +27,103 @@ jobs:
       report-folder: ui
     secrets: inherit
 
-  oauth-report:
+  deploy-oauth:
     needs: [oauth]
     runs-on: ubuntu-latest
-    if: always()
     steps:
-      - uses: actions/checkout@v4  # Нужно для gh-pages
-      - uses: actions/setup-node@v4
-        with:
-          node-version: '20'
       - uses: actions/download-artifact@v4
         with:
           name: playwright-report-oauth
-          path: oauth-raw/
-      - name: Generate OAuth HTML Report
-        run: npx playwright show-report oauth-raw/ --reporter html  # Генерирует ./playwright-report/
-      - name: Publish OAuth Report to GitHub Pages
-        if: success()
+          path: oauth-report/
+      - name: Deploy OAuth Report
         uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./playwright-report
+          publish_dir: ./oauth-report/playwright-report
           destination_dir: reports/${{ github.run_id }}/oauth
 
-  no_oauth-report:
-    needs: [no_oauth]
-    runs-on: ubuntu-latest
-    if: always()
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-      - uses: actions/download-artifact@v4
-        with:
-          name: playwright-report-no_oauth
-          path: no_oauth-raw/
-      - name: Generate No-OAuth HTML Report
-        run: npx playwright show-report no_oauth-raw/
-      - name: Publish No-OAuth Report
-        if: success()
-        uses: peaceiris/actions-gh-pages@v4
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./playwright-report
-          destination_dir: reports/${{ github.run_id }}/no_oauth
+  # oauth-report:
+  #   needs: [oauth]
+  #   runs-on: ubuntu-latest
+  #   if: always()
+  #   steps:
+  #     - uses: actions/checkout@v4  # Нужно для gh-pages
+  #     - uses: actions/setup-node@v4
+  #       with:
+  #         node-version: '20'
+  #     - uses: actions/download-artifact@v4
+  #       with:
+  #         name: playwright-report-oauth
+  #         path: oauth-raw/
+  #     - name: Generate OAuth HTML Report
+  #       run: npx playwright show-report oauth-raw/ --reporter html  # Генерирует ./playwright-report/
+  #     - name: Publish OAuth Report to GitHub Pages
+  #       if: success()
+  #       uses: peaceiris/actions-gh-pages@v4
+  #       with:
+  #         github_token: ${{ secrets.GITHUB_TOKEN }}
+  #         publish_dir: ./playwright-report
+  #         destination_dir: reports/${{ github.run_id }}/oauth
+
+  # no_oauth-report:
+  #   needs: [no_oauth]
+  #   runs-on: ubuntu-latest
+  #   if: always()
+  #   steps:
+  #     - uses: actions/checkout@v4
+  #     - uses: actions/setup-node@v4
+  #       with:
+  #         node-version: '20'
+  #     - uses: actions/download-artifact@v4
+  #       with:
+  #         name: playwright-report-no_oauth
+  #         path: no_oauth-raw/
+  #     - name: Generate No-OAuth HTML Report
+  #       run: npx playwright show-report no_oauth-raw/
+  #     - name: Publish No-OAuth Report
+  #       if: success()
+  #       uses: peaceiris/actions-gh-pages@v4
+  #       with:
+  #         github_token: ${{ secrets.GITHUB_TOKEN }}
+  #         publish_dir: ./playwright-report
+  #         destination_dir: reports/${{ github.run_id }}/no_oauth
 
 
-  ui-report:
-    needs: [ui]
-    runs-on: ubuntu-latest
-    if: always()
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-      - uses: actions/download-artifact@v4
-        with:
-          name: playwright-report-ui
-          path: ui-raw/
-      - name: Generate UI HTML Report
-        run: npx playwright show-report ui-raw/
-      - name: Publish UI Report
-        if: success()
-        uses: peaceiris/actions-gh-pages@v4
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./playwright-report
-          destination_dir: reports/${{ github.run_id }}/no_oauth
+  # ui-report:
+  #   needs: [ui]
+  #   runs-on: ubuntu-latest
+  #   if: always()
+  #   steps:
+  #     - uses: actions/checkout@v4
+  #     - uses: actions/setup-node@v4
+  #       with:
+  #         node-version: '20'
+  #     - uses: actions/download-artifact@v4
+  #       with:
+  #         name: playwright-report-ui
+  #         path: ui-raw/
+  #     - name: Generate UI HTML Report
+  #       run: npx playwright show-report ui-raw/
+  #     - name: Publish UI Report
+  #       if: success()
+  #       uses: peaceiris/actions-gh-pages@v4
+  #       with:
+  #         github_token: ${{ secrets.GITHUB_TOKEN }}
+  #         publish_dir: ./playwright-report
+  #         destination_dir: reports/${{ github.run_id }}/no_oauth
 
-  # 3️⃣ Финальный отчёт (все вместе)
-  final-report:
-    needs: [oauth-report, no_oauth-report, ui-report]
-    runs-on: ubuntu-latest
-    if: always()
-    steps:
-      - uses: actions/download-artifact@v4
-        with:
-          pattern: playwright-report-*
-          path: all-reports/
-      - name: Upload All Reports
-        uses: actions/upload-artifact@v4
-        with:
-          name: all-playwright-reports
-          path: all-reports/
+  # # 3️⃣ Финальный отчёт (все вместе)
+  # final-report:
+  #   needs: [oauth-report, no_oauth-report, ui-report]
+  #   runs-on: ubuntu-latest
+  #   if: always()
+  #   steps:
+  #     - uses: actions/download-artifact@v4
+  #       with:
+  #         pattern: playwright-report-*
+  #         path: all-reports/
+  #     - name: Upload All Reports
+  #       uses: actions/upload-artifact@v4
+  #       with:
+  #         name: all-playwright-reports
+  #         path: all-reports/
