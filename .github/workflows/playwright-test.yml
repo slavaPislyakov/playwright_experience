@@ -1,64 +1,59 @@
-name: Playwright Test
-on:
-  workflow_call:
-    inputs:
-      test-script:
-        description: 'npm run command'
-        required: true
-        type: string
-      report-folder:
-        description: 'Report folder'
-        required: true
-        type: string
-    secrets:
-      BASE_URL_AUTH:
-        required: false
-      BASE_URL_NO_AUTH:
-        required: false
-      BASE_URL_UI:
-        required: false
-      API_KEY:
-        required: false
+# name: Playwright Test
+# on:
+#   workflow_call:
+#     inputs:
+#       test-script:
+#         description: 'npm run command'
+#         required: true
+#         type: string
+#       report-folder:
+#         description: 'Report folder'
+#         required: true
+#         type: string
+#     secrets:
+#       BASE_URL_AUTH:
+#         required: false
+#       BASE_URL_NO_AUTH:
+#         required: false
+#       BASE_URL_UI:
+#         required: false
+#       API_KEY:
+#         required: false
 
-jobs:
-  test:
-    timeout-minutes: 30
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+# jobs:
+#   test:
+#     timeout-minutes: 30
+#     runs-on: ubuntu-latest
+#     steps:
+#       - uses: actions/checkout@v4
       
-      - name: Run ${{ inputs.test-script }}
-        env:
-          TEST_SCRIPT: ${{ inputs.test-script }}
-          PLAYWRIGHT_HTML_OUTPUT_DIR: /app/html-report
-          PLAYWRIGHT_HTML_OPEN: never  # Не открывать браузер
-          BASE_URL_AUTH: ${{ secrets.BASE_URL_AUTH }}
-          BASE_URL_NO_AUTH: ${{ secrets.BASE_URL_NO_AUTH }}
-          BASE_URL_UI: ${{ secrets.BASE_URL_UI }}
-          API_KEY: ${{ secrets.API_KEY }}
-          CI: "true"
-        run: |
-          docker build -t pw-tests .
-
-          mkdir -p html-report
-          
-          docker run --rm \
-            -v $(pwd)/html-report:/app/html-report \
-            -v $(pwd)/${{ inputs.report-folder }}:/app/test-results \
-            -e TEST_SCRIPT \
-            -e PLAYWRIGHT_HTML_OUTPUT_DIR \
-            -e PLAYWRIGHT_HTML_OPEN \
-            -e BASE_URL_AUTH \
-            -e BASE_URL_NO_AUTH \
-            -e BASE_URL_UI \
-            -e API_KEY \
-            -e CI \
-            pw-tests
+#       - name: Setup Node  # Добавьте для npx в контейнере
+#         uses: actions/setup-node@v4
+#         with:
+#           node-version: 20
       
-      - name: Upload HTML Report
-        uses: actions/upload-artifact@v4
-        with:
-          name: playwright-report-${{ inputs.report-folder }}
-          path: html-report/  # Теперь здесь готовый HTML!
-          retention-days: 7
+#       - name: Run ${{ inputs.test-script }}
+#         env:
+#           TEST_SCRIPT: ${{ inputs.test-script }}
+#           BASE_URL_AUTH: ${{ secrets.BASE_URL_AUTH }}
+#           # Уберите HTML env — используем стандартный blob + show-report
+#           CI: "true"
+#         run: |
+#           docker build -t pw-tests .
+#           mkdir -p "${{ inputs.report-folder }}"
+#           docker run --rm \
+#             -v $(pwd)/${{ inputs.report-folder }}:/app/playwright-report \  # Для blob-report
+#             -e TEST_SCRIPT 
+#             -e BASE_URL_AUTH 
+#             -e BASE_URL_NO_AUTH 
+#             -e BASE_URL_UI 
+#             -e API_KEY 
+#             -e CI 
+#             pw-tests
+      
+#       - name: Upload Raw Report Artifact
+#         uses: actions/upload-artifact@v4
+#         with:
+#           name: playwright-report-${{ inputs.report-folder }}
+#           path: ${{ inputs.report-folder }}/  # playwright-report/ внутри
+#           retention-days: 7
