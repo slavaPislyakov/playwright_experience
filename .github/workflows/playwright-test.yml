@@ -25,38 +25,42 @@ jobs:
     timeout-minutes: 30
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      
-      - name: Setup Node  # Добавьте для npx в контейнере
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
+      - name: Checkout
+        uses: actions/checkout@v4
       
       - name: Run ${{ inputs.test-script }}
         env:
           TEST_SCRIPT: ${{ inputs.test-script }}
+          PLAYWRIGHT_HTML_OUTPUT_DIR: /app/playwright-report  # Папка монтируется ниже
+          PLAYWRIGHT_HTML_OPEN: never  # Не открывать браузер
           BASE_URL_AUTH: ${{ secrets.BASE_URL_AUTH }}
-          # Уберите HTML env — используем стандартный blob + show-report
+          BASE_URL_NO_AUTH: ${{ secrets.BASE_URL_NO_AUTH }}
+          BASE_URL_UI: ${{ secrets.BASE_URL_UI }}
+          API_KEY: ${{ secrets.API_KEY }}
           CI: "true"
         run: |
           docker build -t pw-tests .
+
           mkdir -p "${{ inputs.report-folder }}"
+          
           docker run --rm \
-            -v "$(pwd)/${{ inputs.report-folder }}:/app/playwright-report" \  # Для blob-report
-            -e TEST_SCRIPT 
-            -e BASE_URL_AUTH 
-            -e BASE_URL_NO_AUTH 
-            -e BASE_URL_UI 
-            -e API_KEY 
-            -e CI 
+            -v $(pwd)/${{ inputs.report-folder }}:/app/playwright-report \
+            -e TEST_SCRIPT \
+            -e PLAYWRIGHT_HTML_OUTPUT_DIR \
+            -e PLAYWRIGHT_HTML_OPEN \
+            -e BASE_URL_AUTH \
+            -e BASE_URL_NO_AUTH \
+            -e BASE_URL_UI \
+            -e API_KEY \
+            -e CI \
             pw-tests
 
-      # This step is crucial for publishing the report
-      - name: Publish HTML report to GitHub Pages
-        if: always() # Ensures report is published even if tests fail
-        uses: peaceiris/actions-gh-pages@v4
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: playwright-report/ # The folder containing index.html
-          publish_branch: gh-pages # Name of the branch to publish to
-          keep_files: true # Optional: to keep previous reports if you implement versioning
+      # # This step is crucial for publishing the report
+      # - name: Publish HTML report to GitHub Pages
+      #   if: always() # Ensures report is published even if tests fail
+      #   uses: peaceiris/actions-gh-pages@v4
+      #   with:
+      #     github_token: ${{ secrets.GITHUB_TOKEN }}
+      #     publish_dir: playwright-report/ # The folder containing index.html
+      #     publish_branch: gh-pages # Name of the branch to publish to
+      #     keep_files: true # Optional: to keep previous reports if you implement versioning
