@@ -10,5 +10,4 @@ COPY . .
 ENV TZ=Europe/Minsk
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
-ENTRYPOINT ["sh", "-c"]
-CMD ["npm run $${TEST_SCRIPT:-test:all}"]
+CMD npm run ${TEST_SCRIPT:-test:all}
