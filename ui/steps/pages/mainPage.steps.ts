@@ -1,12 +1,12 @@
 import { expect, Page } from "@playwright/test";
 
+import { blocks } from "@@/ui/data/snapshots/blocks";
+
 import { test } from "@@/ui/fixtures/fixture";
 
-import { CommonSteps } from "@@/ui/steps/pages/common.steps";
+import { CommonSteps } from "@@/ui/steps/common.steps";
 
 import { MainPage } from "@@/ui/pages/mainPage";
-
-import { blocks } from "@@/ui/data/snapshots/blocks";
 
 export class MainPageSteps extends CommonSteps {
   private readonly mainPage: MainPage;

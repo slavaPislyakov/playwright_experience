@@ -17,8 +17,6 @@ export class MainPage extends BasePage {
     this.blocks = {
       jobInAnotherCities: this.page.locator(".work-in-other-cities"),
     };
-
-    // TODO: автометически заменять ковычки на другие в стилистике посикать в ии
   }
 
   async getMainPageAnonymousHeaderText(): Promise<string> {

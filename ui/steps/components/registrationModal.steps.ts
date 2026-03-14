@@ -1,6 +1,6 @@
 import test, { Page } from "@playwright/test";
 
-import { RegistrationModal } from "@@/ui/modals/registrationModal";
+import { RegistrationModal } from "@@/ui/components/modals/registrationModal";
 
 export class RegistrationModalSteps {
   private readonly registrationModal: RegistrationModal;

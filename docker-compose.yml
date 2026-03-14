@@ -2,12 +2,15 @@ version: "3.8"
 
 services:
   playwright:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    image: playwright-test
+    build: .
     working_dir: /app
     volumes:
-      - .:/app
-      - ./playwright-report:/app/playwright-report
-    command: "npm run test:api"
+      - .:/app:Z
+      - ./playwright-report:/app/playwright-report:Z
+    env_file: .env
+    environment:
+      - TZ=Europe/Minsk
+    ipc: host
+    stdin_open: true
+    tty: true
+    command: npm run ${TEST_SCRIPT:-test:all}

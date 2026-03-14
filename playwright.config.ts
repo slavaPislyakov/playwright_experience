@@ -68,7 +68,10 @@ export default defineConfig({
     },
     {
       name: "ui",
-      use: { ...devices["Desktop Chrome"] },
+      use: { 
+        ...devices["Desktop Chrome"],
+        baseURL: requireEnv('BASE_URL_UI') 
+     },
       testDir: "./ui/tests",
       dependencies: ["setup"],
     }

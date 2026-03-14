@@ -4,7 +4,7 @@ import { NavigationSteps } from "@@/ui/steps/components/navigation.steps";
 
 import { BasePage } from "@@/ui/pages/basePage";
 
-import { RegistrationModalSteps } from "../components/registrationModal.steps";
+import { RegistrationModalSteps } from "./components/registrationModal.steps";
 
 export abstract class CommonSteps {
   abstract readonly url: string;

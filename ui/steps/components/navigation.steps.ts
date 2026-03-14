@@ -1,6 +1,6 @@
 import test, { expect, Page } from "@playwright/test";
 
-import { Navigation } from "@@/ui/components/navigation";
+import { Navigation } from "@@/ui/components/common/navigation";
 
 export class NavigationSteps {
   private readonly navigation: Navigation;
