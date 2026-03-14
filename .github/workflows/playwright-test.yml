@@ -1,0 +1,51 @@
+name: Playwright Test
+on:
+  workflow_call:
+    inputs:
+      test-script:
+        required: true
+        type: string
+    secrets:
+      BASE_URL_AUTH:
+        required: false
+      BASE_URL_NO_AUTH:
+        required: false
+      BASE_URL_UI:
+        required: false
+      API_KEY:
+        required: false
+
+jobs:
+  test:
+    timeout-minutes: 30
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Run ${{ inputs.test-script }}
+        env:
+          TEST_SCRIPT: ${{ inputs.test-script }}
+          BASE_URL_AUTH: ${{ secrets.BASE_URL_AUTH }}
+          BASE_URL_NO_AUTH: ${{ secrets.BASE_URL_NO_AUTH }}
+          BASE_URL_UI: ${{ secrets.BASE_URL_UI }}
+          API_KEY: ${{ secrets.API_KEY }}
+          CI: "true"
+        run: |
+          docker build -t pw-tests .
+          docker run --rm \
+            -v ${{ github.workspace }}/playwright-report:/app/playwright-report \
+            -e TEST_SCRIPT \
+            -e BASE_URL_AUTH \
+            -e BASE_URL_NO_AUTH \
+            -e BASE_URL_UI \
+            -e API_KEY \
+            -e CI \
+            pw-tests
+      
+      - name: Upload Report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report-${{ inputs.test-script }}
+          path: playwright-report/
+          retention-days: 7
