@@ -3,9 +3,11 @@ on:
   workflow_call:
     inputs:
       test-script:
+        description: 'npm run command'
         required: true
         type: string
-      report_folder:
+      report-folder:
+        description: 'Report folder'
         required: true
         type: string
     secrets:
@@ -23,7 +25,8 @@ jobs:
     timeout-minutes: 30
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout
+        uses: actions/checkout@v4
       
       - name: Run ${{ inputs.test-script }}
         env:
@@ -35,8 +38,11 @@ jobs:
           CI: "true"
         run: |
           docker build -t pw-tests .
+
+          mkdir -p "${{ inputs.report-folder }}"
+          
           docker run --rm \
-            -v ${{ github.workspace }}/playwright-report-${{ inputs.test-script }}:/app/playwright-report \
+            -v $(pwd)/${{ inputs.report-folder }}:/app/playwright-report \
             -e TEST_SCRIPT \
             -e BASE_URL_AUTH \
             -e BASE_URL_NO_AUTH \
@@ -45,10 +51,10 @@ jobs:
             -e CI \
             pw-tests
       
-      - name: Upload ${{ inputs.report_folder }} Report
+      - name: Upload ${{ inputs.report-folder }} Report
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ inputs.report_folder }}
-          path: ${{ inputs.report_folder }}/
+          name: playwright-report-${{ inputs.report-folder }}
+          path: ${{ inputs.report-folder }}/
           retention-days: 7

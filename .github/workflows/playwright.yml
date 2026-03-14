@@ -9,19 +9,19 @@ jobs:
     uses: ./.github/workflows/playwright-test.yml
     with:
       test-script: test:api:oauth
-      report_folder: playwright-report-oauth
+      report-folder: oauth
     secrets: inherit
 
   no_oauth:
     uses: ./.github/workflows/playwright-test.yml
     with:
       test-script: test:api:no_oauth
-      report_folder: playwright-report-no_oauth
+      report-folder: no_oauth
     secrets: inherit
 
   ui:
     uses: ./.github/workflows/playwright-test.yml
     with:
       test-script: test:ui
-      report_folder: playwright-report-ui
+      report-folder: ui
     secrets: inherit
