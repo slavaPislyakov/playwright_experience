@@ -1,10 +1,12 @@
-name: Playwright Tests
+name: Playwright Tests Sequential Reports
+
 on:
   push:
     branches: [ master ]
   pull_request:
 
 jobs:
+  # 1️⃣ Параллельные тесты
   oauth:
     uses: ./.github/workflows/playwright-test.yml
     with:
@@ -25,3 +27,56 @@ jobs:
       test-script: test:ui
       report-folder: ui
     secrets: inherit
+
+  # 2️⃣ Генерация отчётов (после тестов)
+  oauth-report:
+    needs: [oauth]  # Ждёт oauth
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: playwright-report-oauth
+          path: oauth-report/
+      - name: Generate OAuth Report
+        run: npx playwright show-report oauth-report/
+        # Или Allure report: allure generate ...
+
+  no_oauth-report:
+    needs: [no_oauth]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: playwright-report-no_oauth
+          path: no_oauth-report/
+      - name: Generate No-OAuth Report
+        run: npx playwright show-report no_oauth-report/
+
+  ui-report:
+    needs: [ui]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: playwright-report-ui
+          path: ui-report/
+      - name: Generate UI Report
+        run: npx playwright show-report ui-report/
+
+  # 3️⃣ Финальный отчёт (все вместе)
+  final-report:
+    needs: [oauth-report, no_oauth-report, ui-report]  # Ждёт все
+    runs-on: ubuntu-latest
+    if: always()
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: playwright-report-*
+      - name: Combined Report
+        run: |
+          echo "Все отчёты:"
+          ls -la playwright-report-*/
+      - uses: actions/upload-artifact@v4
+        with:
+          name: all-playwright-reports
+          path: playwright-report-*/
