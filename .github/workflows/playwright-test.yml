@@ -37,6 +37,7 @@ jobs:
           
           docker run --rm \
             -v $(pwd):/app \
+            -v /app/node_modules \
             -e TEST_SCRIPT \
             -e BASE_URL_AUTH \
             -e BASE_URL_NO_AUTH \
