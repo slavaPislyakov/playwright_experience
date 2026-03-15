@@ -6,3 +6,5 @@ test-results
 test-examples
 ui
 uiAlfa
+.DS_Store
+.git
