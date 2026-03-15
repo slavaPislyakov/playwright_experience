@@ -44,7 +44,7 @@ jobs:
           mkdir -p "${{ inputs.report-folder }}"
           
           docker run --rm \
-            -v $(pwd)/${{ inputs.report-folder }}:/app/playwright-report \
+            -v $(pwd)/playwright-report:/app/playwright-report \
             -e TEST_SCRIPT \
             -e PLAYWRIGHT_HTML_OUTPUT_DIR \
             -e PLAYWRIGHT_HTML_OPEN \
@@ -59,6 +59,7 @@ jobs:
         run: |
           ls -la 
           ls -la "${{ inputs.report-folder }}/"
+          ls -la "/playwright-report/"
           ls -la "${{ inputs.report-folder }}/playwright-report/" || echo "No playwright-report folder"
           find . -name "*.html" || echo "No HTML files"
 
