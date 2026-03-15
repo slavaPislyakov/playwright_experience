@@ -10,7 +10,6 @@ jobs:
     uses: ./.github/workflows/playwright-test.yml
     with:
       test-script: test:api:oauth
-      report-folder: oauth
     secrets: inherit
 
 
