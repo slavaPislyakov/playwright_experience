@@ -31,8 +31,6 @@ jobs:
       - name: Run ${{ inputs.test-script }}
         env:
           TEST_SCRIPT: ${{ inputs.test-script }}
-          PLAYWRIGHT_HTML_OUTPUT_DIR: /app/playwright-report  # Папка монтируется ниже
-          PLAYWRIGHT_HTML_OPEN: never  # Не открывать браузер
           BASE_URL_AUTH: ${{ secrets.BASE_URL_AUTH }}
           BASE_URL_NO_AUTH: ${{ secrets.BASE_URL_NO_AUTH }}
           BASE_URL_UI: ${{ secrets.BASE_URL_UI }}
@@ -44,10 +42,8 @@ jobs:
           mkdir -p "${{ inputs.report-folder }}"
           
           docker run --rm \
-            -v $(pwd)/playwright-report:/app/playwright-report \
+            -v $(pwd):/app \
             -e TEST_SCRIPT \
-            -e PLAYWRIGHT_HTML_OUTPUT_DIR \
-            -e PLAYWRIGHT_HTML_OPEN \
             -e BASE_URL_AUTH \
             -e BASE_URL_NO_AUTH \
             -e BASE_URL_UI \
@@ -58,17 +54,15 @@ jobs:
       - name: Debug report folder
         run: |
           ls -la 
-          ls -la "${{ inputs.report-folder }}/"
-          ls -la "/playwright-report/"
-          ls -la "${{ inputs.report-folder }}/playwright-report/" || echo "No playwright-report folder"
-          find . -name "*.html" || echo "No HTML files"
+          ls -la "playwright-report/"
+          find playwright-report -name "*.html"
 
       - name: Upload Report Artifact
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: playwright-report-${{ inputs.report-folder }}
-          path: ${{ inputs.report-folder }}
+          name: playwright-report-${{ inputs.report-folder }}  # oauth, ui и т.д.
+          path: playwright-report/  # Дефолтная папка
           retention-days: 7
           
       # # This step is crucial for publishing the report
