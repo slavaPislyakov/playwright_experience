@@ -56,6 +56,6 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: playwright-report-${{ inputs.report-folder }}  # oauth, ui и т.д.
+          name: playwright-report
           path: playwright-report/  # Дефолтная папка
           retention-days: 7
