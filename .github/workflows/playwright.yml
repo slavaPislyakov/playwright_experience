@@ -14,32 +14,32 @@ jobs:
     secrets: inherit
 
 
-  deploy-oauth:
-    needs: [oauth]
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
+  # deploy-oauth:
+  #   needs: [oauth]
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - uses: actions/checkout@v4
+  #       with:
+  #         fetch-depth: 0
 
-      - name: Download HTML report artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: playwright-report-oauth
-          path: oauth-report/
+  #     - name: Download HTML report artifact
+  #       uses: actions/download-artifact@v4
+  #       with:
+  #         name: playwright-report-oauth
+  #         path: oauth-report/
 
-      - name: Deploy OAuth Report to GitHub Pages
-        uses: peaceiris/actions-gh-pages@v4
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./oauth-report/oauth  # Точный путь к index.html!
-          publish_branch: gh-pages
-          keep_files: true
-          allow_empty_commit: true
-          force_orphan: true
-          user_name: github-actions[bot]
-          user_email: github-actions[bot]@users.noreply.github.com
-          commit_message: 'OAuth report ${{ github.run_id }}'
+  #     - name: Deploy OAuth Report to GitHub Pages
+  #       uses: peaceiris/actions-gh-pages@v4
+  #       with:
+  #         github_token: ${{ secrets.GITHUB_TOKEN }}
+  #         publish_dir: ./oauth-report/oauth  # Точный путь к index.html!
+  #         publish_branch: gh-pages
+  #         keep_files: true
+  #         allow_empty_commit: true
+  #         force_orphan: true
+  #         user_name: github-actions[bot]
+  #         user_email: github-actions[bot]@users.noreply.github.com
+  #         commit_message: 'OAuth report ${{ github.run_id }}'
 
   # no_oauth:
   #   uses: ./.github/workflows/playwright-test.yml

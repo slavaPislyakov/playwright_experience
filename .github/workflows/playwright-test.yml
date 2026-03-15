@@ -57,6 +57,7 @@ jobs:
 
       - name: Debug report folder
         run: |
+          ls -la 
           ls -la "${{ inputs.report-folder }}/"
           ls -la "${{ inputs.report-folder }}/playwright-report/" || echo "No playwright-report folder"
           find . -name "*.html" || echo "No HTML files"
