@@ -42,8 +42,8 @@ jobs:
           keep_files: true
           allow_empty_commit: true
           force_orphan: true
-          user_name: github-actions[bot]
-          user_email: github-actions[bot]@users.noreply.github.com
+          # user_name: github-actions[bot]
+          # user_email: github-actions[bot]@users.noreply.github.com
           commit_message: 'OAuth report ${{ github.run_id }}'
 
   # no_oauth:
