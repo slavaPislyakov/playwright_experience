@@ -9,8 +9,14 @@ jobs:
   oauth:
     uses: ./.github/workflows/playwright-test.yml
     with:
-      test-script: test:api:oauth
+      test-script: test:api:no_oauth
     secrets: inherit
+
+  # no_oauth:
+  #   uses: ./.github/workflows/playwright-test.yml
+  #   with:
+  #     test-script: test:api:no_oauth
+  #   secrets: inherit
 
   deploy-oauth:
     needs: [oauth]
@@ -42,7 +48,7 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./playwright-report  # Точный путь к index.html!
 
-          
+
           # publish_branch: gh-pages
           # keep_files: true
           # allow_empty_commit: true
