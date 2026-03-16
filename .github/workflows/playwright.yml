@@ -41,6 +41,7 @@ jobs:
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./playwright-report  # Точный путь к index.html!
+
           
           # publish_branch: gh-pages
           # keep_files: true
