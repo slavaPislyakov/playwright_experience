@@ -12,7 +12,6 @@ jobs:
       test-script: test:api:oauth
     secrets: inherit
 
-
   deploy-oauth:
     needs: [oauth]
     runs-on: ubuntu-latest
