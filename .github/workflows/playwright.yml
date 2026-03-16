@@ -33,21 +33,22 @@ jobs:
       - name: Debug downloaded report
         run: |
           pwd
-          ls -R
-          ls -R playwright-report
+          ls -la
+          # ls -R
+          # ls -R playwright-report
 
       - name: Deploy OAuth Report to GitHub Pages
         uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./playwright-report  # Точный путь к index.html!
-          publish_branch: gh-pages
-          keep_files: true
-          allow_empty_commit: true
-          force_orphan: true
-          # user_name: github-actions[bot]
-          # user_email: github-actions[bot]@users.noreply.github.com
-          commit_message: 'OAuth report ${{ github.run_id }}'
+          # publish_branch: gh-pages
+          # keep_files: true
+          # allow_empty_commit: true
+          # force_orphan: true
+          # # user_name: github-actions[bot]
+          # # user_email: github-actions[bot]@users.noreply.github.com
+          # commit_message: 'OAuth report ${{ github.run_id }}'
 
   # no_oauth:
   #   uses: ./.github/workflows/playwright-test.yml
