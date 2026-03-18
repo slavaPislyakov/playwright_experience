@@ -12,12 +12,6 @@ jobs:
       test-script: test:api:no_oauth
     secrets: inherit
 
-  # no_oauth:
-  #   uses: ./.github/workflows/playwright-test.yml
-  #   with:
-  #     test-script: test:api:no_oauth
-  #   secrets: inherit
-
   deploy-oauth:
     needs: [oauth]
     runs-on: ubuntu-latest
@@ -46,92 +40,4 @@ jobs:
         uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./playwright-report  # Точный путь к index.html!
-
-
-          # publish_branch: gh-pages
-          # keep_files: true
-          # allow_empty_commit: true
-          # force_orphan: true
-          # # user_name: github-actions[bot]
-          # # user_email: github-actions[bot]@users.noreply.github.com
-          # commit_message: 'OAuth report ${{ github.run_id }}'
-
-  # no_oauth:
-  #   uses: ./.github/workflows/playwright-test.yml
-  #   with:
-  #     test-script: test:api:no_oauth
-  #     report-folder: no_oauth
-  #   secrets: inherit
-
-  # ui:
-  #   uses: ./.github/workflows/playwright-test.yml
-  #   with:
-  #     test-script: test:ui
-  #     report-folder: ui
-  #   secrets: inherit
-
-  # deploy-oauth:
-  #     needs: [oauth]
-  #     runs-on: ubuntu-latest
-  #     permissions:
-  #       contents: write
-  #     steps:
-  #       - uses: actions/checkout@v4
-        
-  #       - name: Download Raw Report
-  #         uses: actions/download-artifact@v4
-  #         with:
-  #           name: playwright-report-oauth
-  #           path: raw-report/  # Скачивает содержимое в raw-report/playwright-report/
-        
-  #       - name: Generate HTML Report  # Ключевой шаг!
-  #         run: |
-  #           npx playwright install --with-deps
-  #           npx playwright show-report raw-report/playwright-report/  # Генерирует ./playwright-report/
-        
-  #       - name: Deploy HTML Report  # По README peaceiris
-  #         uses: peaceiris/actions-gh-pages@v4
-  #         with:
-  #           github_token: ${{ secrets.GITHUB_TOKEN }}
-  #           publish_dir: ./playwright-report  # Готовая папка с index.html
-  #           destination_dir: reports/${{ github.run_id }}/oauth
-  #           allow_empty_commit: true
-  #           force_orphan: true
-  #           user_name: 'github-actions[bot]'
-  #           user_email: 'github-actions[bot]@users.noreply.github.com'
-  #           commit_message: 'Deploy Playwright report ${{ github.run_id }}'
-
-
-# name: Playwright Tests and Report
-
-# on:
-#   push:
-#     branches: [ master ]
-#   pull_request:
-#     branches: [ master ]
-
-# jobs:
-#   test:
-#     runs-on: ubuntu-latest
-#     steps:
-#     - uses: actions/checkout@v4
-#     - uses: actions/setup-node@v4
-#       with:
-#         node-version: 20
-#     - name: Install dependencies
-#       run: npm ci
-#     - name: Install Playwright browsers
-#       run: npx playwright install --with-deps
-#     - name: Run Playwright tests
-#       run: npx playwright test --reporter=html # Generates report in playwright-report/
-    
-#     # This step is crucial for publishing the report
-#     - name: Publish HTML report to GitHub Pages
-#       if: always() # Ensures report is published even if tests fail
-#       uses: peaceiris/actions-gh-pages@v4
-#       with:
-#         github_token: ${{ secrets.GITHUB_TOKEN }}
-#         publish_dir: playwright-report/ # The folder containing index.html
-#         publish_branch: gh-pages # Name of the branch to publish to
-#         keep_files: true # Optional: to keep previous reports if you implement versioning
+          publish_dir: ./playwright-report
