@@ -6,6 +6,10 @@ on:
         description: 'npm run command'
         required: true
         type: string
+      report-name: 
+        description: 'report name'
+        required: true
+        type: string
     secrets:
       BASE_URL_AUTH:
         required: false
@@ -46,16 +50,16 @@ jobs:
             -e CI \
             pw-tests
 
-      - name: Debug report folder
+      - name: Debug Allure results
         run: |
-          ls -la 
-          ls -la "playwright-report/"
-          find playwright-report -name "*.html"
+          pwd
+          ls -la allure-results/ || echo "No allure-results"
+          find allure-results -name "*.json" | wc -l
 
-      - name: Upload Report Artifact
+      - name: Upload Allure JSON Artifact
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: playwright-report
-          path: playwright-report/
+          name: allure-results-${{ inputs.report-name }}
+          path: allure-results/
           retention-days: 7

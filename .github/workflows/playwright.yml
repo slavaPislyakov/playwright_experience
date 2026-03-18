@@ -5,39 +5,75 @@ on:
     branches: [ master ]
   pull_request:
 
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
 jobs:
-  oauth:
+  oauth-test:
+    uses: ./.github/workflows/playwright-test.yml
+    with:
+      test-script: test:api:oauth
+      report-name: oauth
+    secrets: inherit
+
+  no_oauth-test:
     uses: ./.github/workflows/playwright-test.yml
     with:
       test-script: test:api:no_oauth
+      report-name: no_oauth
     secrets: inherit
 
-  deploy-oauth:
-    needs: [oauth]
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write
-      pages: write
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
+  ui-test:
+    uses: ./.github/workflows/playwright-test.yml
+    with:
+      test-script: test:ui
+      report-name: ui
+    secrets: inherit
 
-      - name: Download HTML report artifact
+  generate-allure-report:
+    needs: [oauth-test, no_oauth-test, ui-test]
+    runs-on: ubuntu-latest
+    if: always()
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+      
+      - name: Install deps
+        run: npm ci
+      
+      - name: Download all Allure results
         uses: actions/download-artifact@v4
         with:
-          name: playwright-report
-          path: playwright-report/
-
-      - name: Debug downloaded report
+          path: all-allure-results/
+          pattern: allure-results-*
+          merge-multiple: true
+      
+      - name: Debug JSON count
         run: |
-          pwd
-          ls -la
-          # ls -R
-          # ls -R playwright-report
-
-      - name: Deploy OAuth Report to GitHub Pages
-        uses: peaceiris/actions-gh-pages@v4
+          find all-allure-results -name "*.json" | wc -l
+      
+      - name: Generate Allure HTML
+        run: npx allure generate all-allure-results/ \
+          --clean \
+          --output allure-report
+      
+      - name: Verify report
+        run: |
+          ls -la allure-report/
+          test -f allure-report/index.html && echo "✅ Allure ready" || exit 1
+      
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+      
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./playwright-report
+          path: allure-report/
