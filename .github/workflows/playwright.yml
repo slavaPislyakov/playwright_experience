@@ -62,9 +62,7 @@ jobs:
           find all-allure-results -name "*.json" | wc -l
       
       - name: Generate Allure HTML
-        run: npx allure generate all-allure-results/ \
-          --clean \
-          --output allure-report
+        run: npx allure generate all-allure-results/ --clean --output allure-report
       
       - name: Verify report
         run: |
