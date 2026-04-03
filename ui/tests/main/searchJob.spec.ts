@@ -1,6 +1,6 @@
 import { test } from "@@/ui/fixtures/fixture";
 
-test.describe("Search jobs and check error in browser console", () => {
+test.describe("Search jobs and check error in browser console: expected failed", () => {
   test.beforeEach(async ({ mainPageStep }) => {
     await mainPageStep.navigateToPage();
   });

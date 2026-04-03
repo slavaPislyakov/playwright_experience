@@ -6,7 +6,7 @@ export class MainPage extends BasePage {
   private readonly mainPageAnonymousHeader: Locator;
   private readonly searchField: Locator;
   private readonly findButton: Locator;
-  private readonly blocks: { jobInAnotherCities: Locator };
+  private readonly blocks: { navigationBlock: Locator };
 
   constructor(page: Page) {
     super(page);
@@ -15,7 +15,7 @@ export class MainPage extends BasePage {
     this.searchField = this.page.locator("[data-hh-tab-id='searchVacancy'] [data-qa='search-input']");
     this.findButton = this.page.locator("[data-qa='search-button']");
     this.blocks = {
-      jobInAnotherCities: this.page.locator(".work-in-other-cities"),
+      navigationBlock: this.page.locator('[class="supernova-navi supernova-navi_lvl-1 supernova-navi_main-content"]'),
     };
   }
 
