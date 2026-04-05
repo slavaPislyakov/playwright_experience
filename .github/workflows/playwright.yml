@@ -25,16 +25,16 @@ jobs:
       report-name: no_oauth
     secrets: inherit
 
-  # ui-test:
-  #   uses: ./.github/workflows/playwright-test.yml
-  #   with:
-  #     test-script: test:ui
-  #     report-name: ui
-  #   secrets: inherit
+  ui-test:
+    uses: ./.github/workflows/playwright-test.yml
+    with:
+      test-script: test:ui
+      report-name: ui
+    secrets: inherit
 
   generate-allure-report:
-    # needs: [oauth-test, no_oauth-test, ui-test]
-    needs: [oauth-test, no_oauth-test]
+    needs: [oauth-test, no_oauth-test, ui-test]
+    # needs: [oauth-test, no_oauth-test]
     runs-on: ubuntu-latest
     if: always()
     steps:
