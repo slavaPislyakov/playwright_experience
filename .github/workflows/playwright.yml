@@ -34,7 +34,6 @@ jobs:
 
   generate-allure-report:
     needs: [oauth-test, no_oauth-test, ui-test]
-    # needs: [oauth-test, no_oauth-test]
     runs-on: ubuntu-latest
     if: always()
     steps:

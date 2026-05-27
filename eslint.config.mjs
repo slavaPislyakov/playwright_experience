@@ -8,21 +8,15 @@ import globals from "globals";
 import jsonParser from "jsonc-eslint-parser";
 import eslintTS from "typescript-eslint";
 
-// === МОДУЛЬНАЯ ОРГАНИЗАЦИЯ ПРАВИЛ ===
-
-// Базовые правила кода
 const baseCodeRules = {
   "no-shadow": "error",
   "linebreak-style": ["error", "unix"],
   "no-console": "error",
   "comma-spacing": ["error", { before: false, after: true }],
-  // 🎯 ДОБАВЛЯЕМ: Это правило превращает "a" + b в `a${b}`
   "prefer-template": "error",
-  // 🎯 ДОБАВЛЯЕМ: Ловит ${} внутри обычных кавычек и ругается
   "no-template-curly-in-string": "warn",
 };
 
-// Стилистические правила
 const stylisticRules = {
   "@stylistic/quotes": ["error",
     "double",
@@ -53,7 +47,6 @@ const stylisticRules = {
   "@stylistic/template-curly-spacing": ["error", "never"],
 };
 
-// Правила переносов строк
 const lineBreakRules = {
   "@stylistic/operator-linebreak": ["error",
     "after",
@@ -84,7 +77,6 @@ const lineBreakRules = {
   "@stylistic/array-bracket-newline": ["error", "consistent"],
 };
 
-// TypeScript специфичные правила
 const typescriptRules = {
   "@typescript-eslint/explicit-function-return-type": "error",
   "@typescript-eslint/no-floating-promises": "error",
@@ -119,7 +111,6 @@ const importRules = {
   "import/newline-after-import": "error",
 };
 
-// === КОМБИНИРОВАННЫЕ НАБОРЫ ПРАВИЛ ===
 const commonRules = {
   ...baseCodeRules,
   ...stylisticRules,
@@ -132,12 +123,10 @@ const allTypeScriptRules = {
   ...importRules,
 };
 
-// === КОНФИГУРАЦИИ ===
 const ignoreConfig = {
   ignores: ["allure-results/**", "node_modules/**", "playwright-report/**", "test-results/**"],
 };
 
-// Базовая конфигурация для всех JS/MJS файлов
 const baseJsConfig = {
   files: ["**/*.js", "**/*.mjs"],
   plugins: {
@@ -151,7 +140,6 @@ const baseJsConfig = {
   rules: commonRules,
 };
 
-// Конфигурация для TypeScript файлов
 const typeScriptConfig = {
   files: ["ui/**/*.ts", "api/**/*.ts"],
   plugins: {
@@ -175,10 +163,9 @@ const typeScriptConfig = {
     },
     globals: { ...globals.browser, ...globals.node },
   },
-  rules: allTypeScriptRules, // Все правила сразу
+  rules: allTypeScriptRules,
 };
 
-// JSON конфигурация остается как есть
 const jsonConfig = {
   files: ["ui/**/*.json"],
   plugins: {
