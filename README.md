@@ -1,39 +1,48 @@
-# 🎭 Playwright Tests<!-- omit from toc -->
+# Playwright Tests
 
-## 📑 Содержание<!-- omit from toc -->
+## Содержание
 
-- [⚙️ Общие требования](#️-общие-требования)
-- [🔗 API Tests Documentation](#-api-tests-documentation)
-  - [🚀 Базовый запуск](#-базовый-запуск)
-  - [🐳 Запуск через Docker Compose](#-запуск-через-docker-compose)
-  - [🛠 Используемые технологии](#-используемые-технологии)
-    - [📏 Валидация схем](#-валидация-схем)
-      - [1️⃣ AJV (JSON Schema)](#1️⃣-ajv-json-schema)
-      - [2️⃣ Zod (TypeScript-first)](#2️⃣-zod-typescript-first)
-    - [📏 Полезные утилиты:](#-полезные-утилиты)
-      - [1️⃣ Сравнение двух объектов:](#1️⃣-сравнение-двух-объектов)
-- [🖥 UI Tests Documentation](#-ui-tests-documentation)
-  - [🚀 Базовый запуск (UI тесты)](#-базовый-запуск-ui-тесты)
-  - [🎯 Доступные фикстуры](#-доступные-фикстуры)
-    - [📌 `pageWithMonitoring`](#-pagewithmonitoring)
-    - [🔕 `failOnJSError`](#-failonjserror)
+- [Общие требования](#общие-требования)
+- [Структура проекта](#структура-проекта)
+- [API Tests Documentation](#api-tests-documentation)
+  - [Базовый запуск](#базовый-запуск)
+  - [Запуск через Docker Compose](#запуск-через-docker-compose)
+  - [Используемые технологии](#используемые-технологии)
+    - [Валидация схем](#валидация-схем)
+- [UI Tests Documentation](#ui-tests-documentation)
+  - [Базовый запуск (UI тесты)](#базовый-запуск-ui-тесты)
+  - [Доступные фикстуры](#доступные-фикстуры)
 - [Прогон тестов в CI](#прогон-тестов-в-ci)
 - [Доступные make команды](#доступные-make-команды)
 
 ---
 
-## ⚙️ Общие требования
+## Общие требования
 
 ```bash
 # Установка зависимостей
 npm install
 ```
 
+## Структура проекта
+
+```text
+├── api/                # API тесты и утилиты
+│   ├── tests/          # Тест-кейсы API
+│   ├── utils/          # Хелперы и валидаторы
+│   └── schemas/        # JSON/Zod схемы
+├── ui/                 # UI тесты
+│   ├── tests/          # Тест-кейсы UI
+│   └── fixtures/       # Кастомные фикстуры Playwright
+├── playwright.config.ts # Конфигурация Playwright
+└── Makefile            # Команды для автоматизации
+```
+
 ---
 
-## 🔗 API Tests Documentation
+## API Tests Documentation
 
-### 🚀 Базовый запуск
+### Базовый запуск
 
 ```bash
 # Запуск всех API тестов
@@ -43,7 +52,7 @@ npm run test:api
 npx playwright test api/tests/posts.spec.ts
 ```
 
-### 🐳 Запуск через Docker Compose
+### Запуск через Docker Compose
 
 ```bash
 # Запуск всех сервисов и тестов
@@ -55,17 +64,17 @@ make docker-compose-stop
 
 ---
 
-### 🛠 Используемые технологии
+### Используемые технологии
 
-#### 📏 Валидация схем
+#### Валидация схем
 
 Фреймворк поддерживает две библиотеки для валидации JSON схем:
 
-##### 1️⃣ AJV (JSON Schema)
+##### 1. AJV (JSON Schema)
 
 Используется для валидации стандартных JSON Schema.
 
-**Пример:** [`api/tests/posts.spec.ts`](../api/tests/posts.spec.ts)
+**Пример:** [`api/tests/posts.spec.ts`](api/tests/posts.spec.ts)
 
 ```typescript
 import { JSONSchemaType } from 'ajv';
@@ -100,11 +109,11 @@ test('Get post by ID', async ({ request }) => {
 - Широкая поддержка форматов (email, date, uri)
 - Легкая миграция с других фреймворков
 
-##### 2️⃣ Zod (TypeScript-first)
+##### 2. Zod (TypeScript-first)
 
 Современная библиотека для валидации с полной интеграцией с TypeScript.
 
-**Пример:** [`api/tests/albums.spec.ts`](../api/tests/albums.spec.ts)
+**Пример:** [`api/tests/albums.spec.ts`](api/tests/albums.spec.ts)
 
 ```typescript
 import { z } from 'zod';
@@ -131,12 +140,12 @@ test('Get all albums', async ({ request }) => {
 - Схема — единственный источник истины
 
 
-#### 📏 Полезные утилиты:
+#### Полезные утилиты:
 
-##### 1️⃣ Сравнение двух объектов:
-Используется для сравнение двух объектов (к примеру JSON ответа фактического и ожидаемого).
+##### 1. Сравнение двух объектов:
+Используется для сравнения двух объектов (к примеру JSON ответа фактического и ожидаемого).
 
-**Пример:** [`api/utils/prettiObjectDiff.ts`](../api/utils/prettiObjectDiff.ts)
+**Пример:** [`api/utils/prettiObjectDiff.ts`](api/utils/prettiObjectDiff.ts)
 
 ```typescript
 export function diffObjectsPretty(expected: JSONObject, actual: JSONObject): void {
@@ -151,9 +160,9 @@ export function diffObjectsPretty(expected: JSONObject, actual: JSONObject): voi
 ```
 ---
 
-## 🖥 UI Tests Documentation
+## UI Tests Documentation
 
-### 🚀 Базовый запуск (UI тесты)
+### Базовый запуск (UI тесты)
 
 ```bash
 # Запуск всех UI тестов
@@ -175,17 +184,22 @@ npx playwright test ui/tests/pages/login.spec.ts --ui
 npx playwright test ui/tests/pages/login.spec.ts --project=chromium
 ```
 ---
-### 🎯 Доступные фикстуры
+### Доступные фикстуры
 
 Проект содержит набор кастомных фикстур для улучшения опыта написания UI тестов.
 
-#### 📌 `pageWithMonitoring`
-Описание: Расширенная фикстура страницы с встроенным мониторингом упавших запросов
+#### pageWithMonitoring
+Описание: Расширенная фикстура страницы с встроенным мониторингом сетевых запросов. Автоматически логирует неудачные запросы (статус >= 400) для облегчения отладки.
 
+```typescript
+test('Example test with monitoring', async ({ pageWithMonitoring }) => {
+  await pageWithMonitoring.goto('/');
+  // Неудачные запросы будут автоматически залогированы
+});
+```
 
-
-#### 🔕 `failOnJSError`
-Описание: Фикстура для отлавливания ошибок JS в консоле браузера: можно отключить, установив параметру занчение `false`
+#### failOnJSError
+Описание: Фикстура для отлавливания ошибок JS в консоли браузера. Тест упадет, если в консоли появится ошибка. Можно отключить, установив параметру значение `false`.
 ```typescript
 test.use({ failOnJSError: false });
 ```
@@ -193,8 +207,12 @@ test.use({ failOnJSError: false });
 
 ## Прогон тестов в CI
 
-Тесты можно прогнать в `github actions` и результаты прогона `allure-results` отобразятся в `github pages`
+Тесты настроены для запуска в GitHub Actions. При каждом пуше или PR:
+1. Запускаются тесты.
+2. Генерируется Allure-отчет.
+3. Результаты публикуются в GitHub Pages.
 
+Посмотреть историю прогонов можно во вкладке **Actions**.
 
 ## Доступные make команды
 
@@ -207,6 +225,6 @@ test.use({ failOnJSError: false });
 | `make build` | Собрать Docker-образ |
 | `make test-report` | Открыть HTML-отчёт Playwright |
 | `make clean` | Удалить контейнеры, volumes и отчёт |
-| `make logs` | Смотреть логи docker compose |
-| `make debug` | Войти в контейнер в shell |
-| `make help` | Вывести список всех команд |
+| `make logs` | Просмотр логов docker compose |
+| `make debug` | Вход в контейнер (shell) |
+| `make help` | Список всех команд |
