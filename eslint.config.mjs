@@ -4,6 +4,7 @@ import eslintPluginTS from "@typescript-eslint/eslint-plugin";
 import eslintParserTS from "@typescript-eslint/parser";
 import importPlugin from "eslint-plugin-import";
 import jsoncPlugin from "eslint-plugin-jsonc";
+import playwright from "eslint-plugin-playwright";
 import globals from "globals";
 import jsonParser from "jsonc-eslint-parser";
 import eslintTS from "typescript-eslint";
@@ -146,6 +147,7 @@ const typeScriptConfig = {
     "@typescript-eslint": eslintPluginTS,
     "@stylistic": stylistic,
     import: importPlugin,
+    playwright: playwright,
   },
   settings: {
     "import/resolver": {
@@ -163,7 +165,12 @@ const typeScriptConfig = {
     },
     globals: { ...globals.browser, ...globals.node },
   },
-  rules: allTypeScriptRules,
+  rules: {
+    ...allTypeScriptRules,
+    ...(playwright.configs ? playwright.configs["flat/recommended"].rules : {}),
+    "playwright/no-skipped-test": "warn",
+    "playwright/no-focused-test": "error",
+  },
 };
 
 const jsonConfig = {
