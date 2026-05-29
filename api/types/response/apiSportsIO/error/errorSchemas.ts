@@ -1,6 +1,6 @@
-import { JSONSchemaType } from "ajv";
+import type { JSONSchemaType } from "ajv";
 
-import { IError } from "@@/api/types/response/apiSportsIO/error/errorInterface";
+import type { IError } from "@@/api/types/response/apiSportsIO/error/errorInterface";
 
 export const errorSchema: JSONSchemaType<IError> = {
   type: "object",

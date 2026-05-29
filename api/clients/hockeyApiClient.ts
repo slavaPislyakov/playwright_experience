@@ -1,6 +1,8 @@
-import test, { APIRequestContext, APIResponse } from "@playwright/test";
+import type { APIRequestContext, APIResponse } from "@playwright/test";
+import test from "@playwright/test";
 
-import { BaseApiClient, RequestOptions } from "@@/api/clients/baseApiClient";
+import type { RequestOptions } from "@@/api/clients/baseApiClient";
+import { BaseApiClient } from "@@/api/clients/baseApiClient";
 
 import { URLS } from "@@/api/data/urls";
 

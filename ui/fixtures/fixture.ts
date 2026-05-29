@@ -1,4 +1,5 @@
-import { ConsoleMessage, Page, test as base } from "@playwright/test";
+import type { ConsoleMessage, Page } from "@playwright/test";
+import { test as base } from "@playwright/test";
 
 import { MainPageSteps } from "@@/ui/steps/pages/mainPage.steps";
 

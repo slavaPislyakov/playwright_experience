@@ -1,6 +1,6 @@
-import { JSONSchemaType } from "ajv";
+import type { JSONSchemaType } from "ajv";
 
-import { ICountryInfo } from "@@/api/types/response/apiSportsIO/leagues/leaguesInterface";
+import type { ICountryInfo } from "@@/api/types/response/apiSportsIO/leagues/leaguesInterface";
 
 export const countryInfoSchema: JSONSchemaType<ICountryInfo[]> = {
   "type": "array",

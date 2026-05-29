@@ -1,5 +1,5 @@
 /* eslint-disable no-console */
-import { APIResponse } from "@playwright/test";
+import type { APIResponse } from "@playwright/test";
 
 export class ApiLogger {
   private enabled: boolean;

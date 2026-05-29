@@ -1,4 +1,5 @@
-import test, { APIRequestContext, APIResponse } from "@playwright/test";
+import type { APIRequestContext, APIResponse } from "@playwright/test";
+import test from "@playwright/test";
 
 import { BaseApiClient } from "@@/api/clients/baseApiClient";
 

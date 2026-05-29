@@ -8,7 +8,7 @@ import { UserRole } from "@@/api/utils/headerUtils";
 test.describe("Check endpoint 'get all countries': Authorized user", () => {
   test.use({ role: UserRole.AUTHORIZED });
 
-  test("Check 'GET /countries' endpoint: ", async ({ hockeyApiClient, requestAssertions }) => {
+  test("Check 'GET /countries' endpoint:", async ({ hockeyApiClient, requestAssertions }) => {
 
     const response = await hockeyApiClient.getCountryInfoByCode("BY");
 
@@ -20,7 +20,7 @@ test.describe("Check endpoint 'get all countries': Authorized user", () => {
 test.describe("Check endpoint 'get all countries': Unauthorized user", () => {
   test.use({ role: UserRole.GUEST });
 
-  test("Check 'GET /countries' endpoint: ", async ({ hockeyApiClient, requestAssertions }) => {
+  test("Check 'GET /countries' endpoint:", async ({ hockeyApiClient, requestAssertions }) => {
 
     const response = await hockeyApiClient.getCountryInfoByCode("BY");
 

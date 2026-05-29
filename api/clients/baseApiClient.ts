@@ -1,4 +1,4 @@
-import { APIRequestContext, APIResponse } from "@playwright/test";
+import type { APIRequestContext, APIResponse } from "@playwright/test";
 
 import { getAuthHeaders, UserRole } from "@@/api/utils/headerUtils";
 import { ApiLogger } from "@@/api/utils/logger";

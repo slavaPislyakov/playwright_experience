@@ -1,10 +1,12 @@
-import test, { APIResponse } from "@playwright/test";
+import type { APIResponse } from "@playwright/test";
+import test from "@playwright/test";
 
-import z from "zod/v4/classic/external.cjs";
+import { z } from "zod";
 
 import { expect } from "@@/api/fixtures/fixtures";
 
-import { ajv, JSONSchemaType } from "@@/api/utils/ajv";
+import type { JSONSchemaType } from "@@/api/utils/ajv";
+import { ajv } from "@@/api/utils/ajv";
 
 export class RequestAssertions {
   constructor() { }
@@ -38,7 +40,7 @@ export class RequestAssertions {
 
       if (!isSchemaValid.success) {
         const prettyErrors = isSchemaValid.error.issues
-          .map((issue) => `${issue.path.join(".")}: ${issue.message}`)
+          .map((issue: z.ZodIssue) => `${issue.path.join(".")}: ${issue.message}`)
           .join("\n");
 
         expect(isSchemaValid.success, `Validation errors list: ${prettyErrors}`).toBe(true);

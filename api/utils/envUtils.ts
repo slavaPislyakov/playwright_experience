@@ -1,8 +1,7 @@
-import path from "path";
-
 import * as dotenv from "dotenv";
 
-// Load .env from the project root
+import path from "path";
+
 dotenv.config({ path: path.resolve(process.cwd(), ".env") });
 
 export const requireEnv = (name: string): string => {

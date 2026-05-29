@@ -1,4 +1,5 @@
-import Ajv, { JSONSchemaType } from "ajv";
+import type { JSONSchemaType } from "ajv";
+import Ajv from "ajv";
 
 export const ajv = new Ajv({
   allErrors: true,
@@ -6,4 +7,4 @@ export const ajv = new Ajv({
   validateFormats: true,
 });
 
-export { JSONSchemaType };
+export type { JSONSchemaType };
