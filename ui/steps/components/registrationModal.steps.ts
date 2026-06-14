@@ -1,12 +1,12 @@
 import type { Page } from "@playwright/test";
-import test from "@playwright/test";
+import { test } from "@playwright/test";
 
 import { RegistrationModal } from "@@/ui/components/modals/registrationModal";
 
 export class RegistrationModalSteps {
-  private readonly registrationModal: RegistrationModal;
+  readonly registrationModal: RegistrationModal;
 
-  constructor(private readonly page: Page) {
+  constructor(readonly page: Page) {
     this.registrationModal = new RegistrationModal(this.page);
   }
 

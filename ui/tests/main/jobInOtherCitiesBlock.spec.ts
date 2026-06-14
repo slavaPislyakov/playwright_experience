@@ -3,11 +3,11 @@ import { test } from "@@/ui/fixtures/fixture";
 test.use({ failOnJSError: false });
 
 test.describe("Check header block using snapshot testing:", () => {
-  test.beforeEach(async ({ mainPageStep }) => {
-    await mainPageStep.navigateToPage();
+  test.beforeEach(async ({ mainPageSteps }) => {
+    await mainPageSteps.navigateToPage();
   });
 
-  test("Check elements in header block", async ({ mainPageStep }) => {
-    await mainPageStep.checkBlockOnPage("navigationBlock");
+  test("Check elements in header block", async ({ mainPageSteps }) => {
+    await mainPageSteps.checkBlockOnPage("navigationBlock");
   });
 });

@@ -4,10 +4,10 @@ import { test as base } from "@playwright/test";
 import { MainPageSteps } from "@@/ui/steps/pages/mainPage.steps";
 
 type TFixtures = {
-  failOnJSError: boolean
+  failOnJSError: boolean;
   pageWithMonitoring: Page;
   page: Page;
-  mainPageStep: MainPageSteps;
+  mainPageSteps: MainPageSteps;
 };
 
 type ErrorRequest = {
@@ -73,7 +73,7 @@ export const test = base.extend<TFixtures >({
     }
   },
 
-  mainPageStep: async ({ page }, use) => {
+  mainPageSteps: async ({ page }, use) => {
     await use(new MainPageSteps(page));
   },
 });

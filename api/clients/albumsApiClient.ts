@@ -1,37 +1,28 @@
-import type { APIRequestContext, APIResponse } from "@playwright/test";
+import type { APIResponse } from "@playwright/test";
 import test from "@playwright/test";
 
 import { BaseApiClient } from "@@/api/clients/baseApiClient";
 
 import { URLS } from "@@/api/data/urls";
 
-import { UserRole } from "@@/api/utils/headerUtils";
+import type { AlbumId } from "@@/api/types/common";
+
 import { stringFormat } from "@@/api/utils/stringUtils";
 
 export class AlbumsApiClient extends BaseApiClient {
-  constructor(request: APIRequestContext, role: UserRole, baseURL?: string) {
-    super(request, role, baseURL);
+  getAllAlbums(): Promise<APIResponse> {
+    return test.step("Get all albums request", () => this.getMethod(URLS.ALBUMS.ALBUMS_ALL));
   }
 
-  async getAllAlbums(): Promise<APIResponse> {
-    return await test.step("Get all albums request", async () => {
-      return await this.getMethod(URLS.ALBUMS.ALBUMS_ALL);
+  getAlbumByNumber(index: AlbumId): Promise<APIResponse> {
+    return test.step(`Get album by number "${index}" request`, () => {
+      return this.getMethod(stringFormat(URLS.ALBUMS.ALBUMS_ID, index));
     });
   }
 
-  async getAlbumByNumber(index: number): Promise<APIResponse> {
-    return await test.step(`Get album by number "${index}" request`, async () => {
-      const url = stringFormat(URLS.ALBUMS.ALBUMS_ID, index);
-
-      return await this.getMethod(url);
-    });
-  }
-
-  async getAlbumPhotosByNumber(index: number): Promise<APIResponse> {
-    return await test.step(`Get album photos by number "${index}" request`, async () => {
-      const url = stringFormat(URLS.ALBUMS.ALBUMS_ID_PHOTOS, index);
-
-      return await this.getMethod(url);
+  getAlbumPhotosByNumber(index: AlbumId): Promise<APIResponse> {
+    return test.step(`Get album photos by number "${index}" request`, () => {
+      return this.getMethod(stringFormat(URLS.ALBUMS.ALBUMS_ID_PHOTOS, index));
     });
   }
 }

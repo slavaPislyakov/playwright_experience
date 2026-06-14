@@ -170,6 +170,25 @@ const typeScriptConfig = {
     ...(playwright.configs ? playwright.configs["flat/recommended"].rules : {}),
     "playwright/no-skipped-test": "warn",
     "playwright/no-focused-test": "error",
+    "playwright/expect-expect": [
+      "warn",
+      {
+        assertFunctionPatterns: [
+          // API assertions
+          "checkStatusCode",
+          "checkJSONResponseSchemaAjv",
+          "checkJSONResponseSchemaZod",
+          "partialCompareTwoObjects",
+          "fullComparingTwoObjects",
+          "validateResponse",
+          // UI assertions
+          "checkAnonymousHeaderText",
+          "checkNavigationElementIsVisible",
+          "checkBlockOnPage",
+          "checkCurrentUrl",
+        ],
+      },
+    ],
   },
 };
 

@@ -2,11 +2,17 @@ import type { Locator, Page } from "@playwright/test";
 
 import { BasePage } from "@@/ui/pages/basePage";
 
+export type BlockName = "navigationBlock";
+
+export interface PageBlocks {
+  navigationBlock: Locator;
+}
+
 export class MainPage extends BasePage {
-  private readonly mainPageAnonymousHeader: Locator;
-  private readonly searchField: Locator;
-  private readonly findButton: Locator;
-  private readonly blocks: { navigationBlock: Locator };
+  readonly mainPageAnonymousHeader: Locator;
+  readonly searchField: Locator;
+  readonly findButton: Locator;
+  readonly blocks: PageBlocks;
 
   constructor(page: Page) {
     super(page);
@@ -31,7 +37,7 @@ export class MainPage extends BasePage {
     await this.findButton.click();
   }
 
-  async getJobInAnotherCitiesBlock(blockName: keyof typeof this.blocks): Promise<Locator> {
+  getBlock(blockName: BlockName): Locator {
     return this.blocks[blockName];
   }
 

@@ -1,8 +1,13 @@
 import type { JSONSchemaType } from "ajv";
 
-import type { IError } from "@@/api/types/response/apiSportsIO/error/errorInterface";
+// Error response interface for AJV
+export interface ApiError {
+  status: number;
+  error: string;
+}
 
-export const errorSchema: JSONSchemaType<IError> = {
+// Error response schema using AJV
+export const ErrorSchema: JSONSchemaType<ApiError> = {
   type: "object",
   properties: {
     status: {

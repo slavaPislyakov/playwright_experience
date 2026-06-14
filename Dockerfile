@@ -1,9 +1,12 @@
-FROM mcr.microsoft.com/playwright:v1.58.2-noble
+FROM mcr.microsoft.com/playwright:v1.60.0-noble
 
 WORKDIR /app
 
 COPY package*.json ./
 RUN npm ci
+
+# Установка браузеров Playwright (обязательно при несовпадении версий)
+RUN npx playwright install
 
 COPY . .
 

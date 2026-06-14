@@ -1,12 +1,12 @@
 import type { Page } from "@playwright/test";
-import test, { expect } from "@playwright/test";
+import { expect, test } from "@playwright/test";
 
 import { Navigation } from "@@/ui/components/common/navigation";
 
 export class NavigationSteps {
-  private readonly navigation: Navigation;
+  readonly navigation: Navigation;
 
-  constructor(private readonly page: Page) {
+  constructor(readonly page: Page) {
     this.navigation = new Navigation(this.page);
   }
 

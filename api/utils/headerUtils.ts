@@ -11,28 +11,25 @@ interface ApiUser {
 }
 
 const API_USERS: Record<UserRole, ApiUser> = {
-  authorized: {
+  [UserRole.AUTHORIZED]: {
     apiKey: requireEnv("API_KEY"),
     role: UserRole.AUTHORIZED,
   },
-  guest: {
-    apiKey: undefined,
+  [UserRole.GUEST]: {
     role: UserRole.GUEST,
   },
-} as const;
+};
 
-export const getAuthHeaders = (role: UserRole): Record<string, string | undefined> => {
+export const getAuthHeaders = (role: UserRole): Record<string, string> => {
   const user = API_USERS[role];
 
   if (!user) {
     throw new Error(`Unknown role: ${role}`);
   }
 
-  const headers: Record<string, string | undefined> = {};
-
-  if (user.role === UserRole.AUTHORIZED) {
-    headers["x-rapidapi-key"] = user.apiKey;
+  if (user.role === UserRole.AUTHORIZED && user.apiKey) {
+    return { "x-rapidapi-key": user.apiKey };
   }
 
-  return headers;
+  return {};
 };

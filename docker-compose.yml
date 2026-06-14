@@ -1,15 +1,19 @@
-version: "3.8"
-
 services:
   playwright:
     build: .
     working_dir: /app
     volumes:
-      - .:/app:Z
-      - ./playwright-report:/app/playwright-report:Z
-    env_file: .env
+      # Без :Z для совместимости с macOS и Linux без SELinux
+      # Для SELinux систем используйте: .:/app:Z
+      - .:/app
+      - ./playwright-report:/app/playwright-report
+    env_file:
+      # Файл .env необязателен
+      - path: .env
+        required: false
     environment:
       - TZ=Europe/Minsk
+      # ipc: host необходим для Chrome/Chromium в Docker
     ipc: host
     stdin_open: true
     tty: true

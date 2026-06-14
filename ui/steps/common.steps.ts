@@ -1,5 +1,5 @@
 import type { Page } from "@playwright/test";
-import test, { expect } from "@playwright/test";
+import { expect, test } from "@playwright/test";
 
 import { NavigationSteps } from "@@/ui/steps/components/navigation.steps";
 
@@ -10,12 +10,11 @@ import { RegistrationModalSteps } from "./components/registrationModal.steps";
 export abstract class CommonSteps {
   abstract readonly url: string;
 
-  private readonly basePage: BasePage;
-
+  readonly basePage: BasePage;
   readonly navigationSteps: NavigationSteps;
   readonly registrationModalSteps: RegistrationModalSteps;
 
-  constructor(protected readonly page: Page) {
+  constructor(readonly page: Page) {
     this.basePage = new BasePage(this.page);
     this.navigationSteps = new NavigationSteps(this.page);
     this.registrationModalSteps = new RegistrationModalSteps(this.page);

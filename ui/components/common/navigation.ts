@@ -1,9 +1,9 @@
 import type { Locator, Page } from "@playwright/test";
 
 export class Navigation {
-  private readonly navigationElement: Locator;
+  readonly navigationElement: Locator;
 
-  constructor(private readonly page: Page) {
+  constructor(readonly page: Page) {
     this.navigationElement = this.page.locator(".supernova-overlay__navi");
   }
 

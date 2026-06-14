@@ -1,9 +1,9 @@
 import type { Locator, Page } from "@playwright/test";
 
 export class RegistrationModal {
-  private readonly closeButton: Locator;
+  readonly closeButton: Locator;
 
-  constructor(private readonly page: Page) {
+  constructor(readonly page: Page) {
     this.closeButton = this.page.locator('[data-qa="signup-modal-close"]');
   }
 

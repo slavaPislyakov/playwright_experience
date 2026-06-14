@@ -1,23 +1,19 @@
 import type { Page } from "@playwright/test";
-import { expect } from "@playwright/test";
+import { expect, test } from "@playwright/test";
 
 import { blocks } from "@@/ui/data/snapshots/blocks";
 
-import { test } from "@@/ui/fixtures/fixture";
-
 import { CommonSteps } from "@@/ui/steps/common.steps";
 
-import { MainPage } from "@@/ui/pages/mainPage";
+import { MainPage, type BlockName } from "@@/ui/pages/mainPage";
 
 export class MainPageSteps extends CommonSteps {
-  private readonly mainPage: MainPage;
-
+  readonly mainPage: MainPage;
   readonly url: string;
 
   constructor(page: Page) {
     super(page);
     this.mainPage = new MainPage(this.page);
-
     this.url = "/";
   }
 
@@ -41,9 +37,9 @@ export class MainPageSteps extends CommonSteps {
     });
   }
 
-  async checkBlockOnPage(blockName: keyof typeof blocks): Promise<void> {
+  async checkBlockOnPage(blockName: BlockName): Promise<void> {
     await test.step(`Check block ${blockName} using snapshots`, async () => {
-      const block = await this.mainPage.getJobInAnotherCitiesBlock(blockName);
+      const block = this.mainPage.getBlock(blockName);
 
       await expect(block).toMatchAriaSnapshot(blocks[blockName]);
     });
