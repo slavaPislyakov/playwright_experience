@@ -12,6 +12,7 @@
   - [Локальный запуск](#локальный-запуск)
   - [Запуск через Docker](#запуск-через-docker)
 - [Команды Makefile](#команды-makefile)
+- [Playwright-проекты](#playwright-проекты)
 - [Архитектура](#архитектура)
   - [API тесты](#api-тесты)
   - [UI тесты](#ui-тесты)
@@ -116,8 +117,8 @@ npx playwright test ui/tests/main/mainPage.spec.ts --debug
 # Запуск с UI интерфейсом
 npm run ui:mode
 
-# Запуск на конкретном браузере
-npx playwright test --project=chromium
+# Запуск конкретного Playwright-проекта (см. "Playwright-проекты" ниже)
+npx playwright test --project=ui
 ```
 
 ### Запуск через Docker
@@ -161,6 +162,26 @@ make debug
 | `make debug` | Вход в контейнер (shell) |
 | `make help` | Список всех команд |
 
+## Playwright-проекты
+
+В `playwright.config.ts` определены три Playwright-проекта, каждый со своим `testDir`
+и своим `baseURL`, читаемым из переменных окружения лениво (см. ниже):
+
+| Проект | `testDir` | Переменная `baseURL` | Требует авторизацию |
+|---|---|---|---|
+| `apiOAuth` | `api/tests/apiOAuth` | `BASE_URL_AUTH` | да (`API_KEY`, только когда тест запрашивает `UserRole.AUTHORIZED`) |
+| `noOAuth` | `api/tests/noAuth` | `BASE_URL_NO_AUTH` | нет |
+| `ui` | `ui/tests` | `BASE_URL_UI` | нет |
+
+Проекта `setup` (auth-сетап через `*.setup.ts` + `storageState`) в проекте **нет** —
+никаких зависимостей (`dependencies: [...]`) между проектами тоже нет. Каждый проект
+можно запускать изолированно (`--project=ui`, `--project=apiOAuth`, ...), не имея на
+руках переменных окружения, нужных другим проектам — `baseURL` читается через мягкий
+`optionalEnv(...)` в `playwright.config.ts`, а обязательность конкретной переменной
+(`requireEnv(...)`) проверяется только в рантайме, когда она действительно нужна
+(`BaseApiClient` — при первом запросе, `getAuthHeaders` — только для
+`UserRole.AUTHORIZED`).
+
 ## Архитектура
 
 ### API тесты
@@ -178,7 +199,7 @@ make debug
 ```typescript
 import { test } from "@@/api/fixtures/fixtures";
 import { AlbumsArraySchema, AlbumSchema } from "@@/api/types/response/jsonplaceholder/albums/zod/albumsSchemas";
-import { AlbumId } from "@@/api/types/common";
+import { AlbumId } from "@@/api/types/common/brandedTypes";
 
 test.describe("Check 'ALBUMS' endpoint", () => {
   test("Get all albums", async ({ albumsApiClient, responseValidator }) => {
@@ -256,7 +277,11 @@ await responseValidator.validateResponse(response, { schema: AlbumsArraySchema }
 
 ### AJV
 
-Валидация через JSON Schema (для legacy API или специфических требований):
+Валидация через JSON Schema — используется для `apiSportsIO` (hockey) намеренно,
+не как временная мера: AJV-схемы объявлены со `additionalProperties: false`
+(строгая проверка лишних полей ответа), чего текущие Zod-схемы в проекте не
+делают. См. `api/REFACTORING_PLAN.md` (раздел «Этап 4») для деталей, почему
+оба валидатора сосуществуют осознанно, а не являются незавершённой миграцией:
 
 ```typescript
 import { JSONSchemaType } from "ajv";

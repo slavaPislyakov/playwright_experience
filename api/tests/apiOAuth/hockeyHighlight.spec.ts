@@ -1,12 +1,12 @@
 import { test } from "@@/api/fixtures/fixtures";
 
-// AJV schemas for Hockey API
+import { ErrorSchema as ErrorSchemaAjv } from "@@/api/types/response/apiSportsIO/error/ajv/errorSchemas";
 import {
   CountryInfoArraySchema as CountryInfoArraySchemaAjv,
 } from "@@/api/types/response/apiSportsIO/leagues/ajv/leaguesSchemas";
-import { ErrorSchema as ErrorSchemaAjv } from "@@/api/types/response/apiSportsIO/error/ajv/errorSchemas";
 
-import { CountryCode, HttpStatusCode } from "@@/api/types/common";
+import { CountryCode } from "@@/api/types/common/brandedTypes";
+import { HttpStatusCode } from "@@/api/types/common/httpStatusCode";
 
 import { UserRole } from "@@/api/utils/headerUtils";
 

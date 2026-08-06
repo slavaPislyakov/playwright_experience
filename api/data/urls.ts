@@ -1,4 +1,4 @@
-import type { AlbumId, CountryCode } from "@@/api/types/common";
+import type { AlbumId, CountryCode } from "@@/api/types/common/brandedTypes";
 
 export const URLS = {
   API_SPORTS: {

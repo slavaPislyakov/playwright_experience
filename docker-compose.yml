@@ -2,18 +2,26 @@ services:
   playwright:
     build: .
     working_dir: /app
+    container_name: playwright-tests
+    init: true
     volumes:
       # Без :Z для совместимости с macOS и Linux без SELinux
       # Для SELinux систем используйте: .:/app:Z
       - .:/app
-      - ./playwright-report:/app/playwright-report
+      # Анонимный volume поверх ./node_modules внутри bind-mount ".:/app":
+      # без него хостовые node_modules (собранные под другую ОС/архитектуру,
+      # либо отсутствующие вовсе) перекрывают node_modules, установленные
+      # внутри образа при сборке. Тот же приём уже используется в CI
+      # (playwright-test.yml: `docker run -v /app/node_modules`).
+      - /app/node_modules
     env_file:
       # Файл .env необязателен
       - path: .env
         required: false
     environment:
       - TZ=Europe/Minsk
-      # ipc: host необходим для Chrome/Chromium в Docker
+    # ipc: host необходим для Chrome/Chromium в Docker.
+    # Альтернатива с сохранением изоляции: shm_size: 2gb
     ipc: host
     stdin_open: true
     tty: true

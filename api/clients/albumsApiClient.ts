@@ -5,7 +5,7 @@ import { BaseApiClient } from "@@/api/clients/baseApiClient";
 
 import { URLS } from "@@/api/data/urls";
 
-import type { AlbumId } from "@@/api/types/common";
+import type { AlbumId } from "@@/api/types/common/brandedTypes";
 
 export class AlbumsApiClient extends BaseApiClient {
   getAllAlbums(): Promise<APIResponse> {

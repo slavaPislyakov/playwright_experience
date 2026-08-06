@@ -7,13 +7,11 @@ import { HockeyApiClient } from "@@/api/clients/hockeyApiClient";
 import { RequestAssertions } from "@@/api/assertions/RequestAssertions";
 
 import { UserRole } from "@@/api/utils/headerUtils";
-import { ApiResponseValidator } from "@@/api/utils/responseValidator";
 
 type ApiFixtures = {
   albumsApiClient: AlbumsApiClient;
   hockeyApiClient: HockeyApiClient;
   requestAssertions: RequestAssertions;
-  responseValidator: ApiResponseValidator;
   role: UserRole;
 };
 
@@ -54,10 +52,6 @@ export const test = base.extend<ApiFixtures>({
 
   requestAssertions: async ({}, use) => {
     await use(new RequestAssertions(expect));
-  },
-
-  responseValidator: async ({ requestAssertions }, use) => {
-    await use(new ApiResponseValidator(requestAssertions));
   },
 });
 

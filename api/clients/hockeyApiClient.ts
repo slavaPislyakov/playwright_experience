@@ -6,7 +6,7 @@ import { BaseApiClient } from "@@/api/clients/baseApiClient";
 
 import { URLS } from "@@/api/data/urls";
 
-import type { CountryCode } from "@@/api/types/common";
+import type { CountryCode } from "@@/api/types/common/brandedTypes";
 
 export class HockeyApiClient extends BaseApiClient {
   getCountryInfoByCode(code: CountryCode, options: RequestOptions = {}): Promise<APIResponse> {
