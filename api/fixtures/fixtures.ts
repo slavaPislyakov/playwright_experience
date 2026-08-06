@@ -17,7 +17,7 @@ type ApiFixtures = {
   role: UserRole;
 };
 
-const requireBaseURL = (baseURL?: string): string => {
+const requireBaseURL = (baseURL: string | undefined): string => {
   if (!baseURL) {
     throw new Error("❌ baseURL is required! Check playwright.config.ts or .env");
   }
@@ -30,11 +30,17 @@ type ClientConstructor<T extends BaseApiClient> = new (
   baseURL: string,
 ) => T;
 
+type ClientFixtureArgs = {
+  request: APIRequestContext;
+  role: UserRole;
+  baseURL: string | undefined;
+};
+
 const createApiClient = <T extends BaseApiClient>(
   ctor: ClientConstructor<T>,
 ) =>
   async (
-    { request, role, baseURL }: { request: APIRequestContext; role: UserRole; baseURL?: string },
+    { request, role, baseURL }: ClientFixtureArgs,
     use: (client: T) => Promise<void>,
   ): Promise<void> => {
     await use(new ctor(request, role, requireBaseURL(baseURL)));

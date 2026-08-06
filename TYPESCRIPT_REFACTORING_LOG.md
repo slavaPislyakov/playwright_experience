@@ -518,25 +518,32 @@ export const CountryCode = (code: string): CountryCode => code.toUpperCase() as 
 
 ### 6.3. `exactOptionalPropertyTypes` — откат
 
-**Статус**: ⏸️ не применено (каскадные правки)
+**Статус**: ✅ применено (отдельный коммит, после этапов 1-6)
 
-Пробовал включить `exactOptionalPropertyTypes: true` — typecheck упал с 4 ошибками:
-- `fixtures.ts:46-47` — тип `baseURL?: string` фабрики `createApiClient` несовместим с Playwright fixture типами (`string | undefined` не присваивается к `string` при exactOptionalPropertyTypes)
-- `playwright.config.ts:17` — `workers: number | undefined` несовместим с Playwright типом `string | number`
+**Было**: опция отключена. `prop?: T` неявно означало `prop: T | undefined` — нельзя было различить отсутствующее поле и поле со значением `undefined`.
 
-Эти ошибки требуют правок в Playwright-типах или существенной переработки фабрики и config. Решено откатить — требует отдельной задачи с оценкой влияния на все optional-свойства.
+**Стало**: `exactOptionalPropertyTypes: true` — `prop?: T` и `prop: T | undefined` теперь разные типы. Присвоение `undefined` optional-свойству запрещено — нужно omit свойство.
 
-**Рефакторинг**: не применён (откат из-за каскадных правок в Playwright-типах)
+Правки для совместимости:
+
+1. **`fixtures.ts`** — фабрика `createApiClient`. Тип `baseURL?: string` не принимал `string | undefined` из Playwright fixture-args. Заменён на явный `baseURL: string | undefined` через выделенный тип `ClientFixtureArgs`. `requireBaseURL(baseURL?: string)` → `requireBaseURL(baseURL: string | undefined)`.
+
+2. **`playwright.config.ts`** — `workers: process.env["CI"] ? 1 : undefined` несовместим с Playwright типом `workers?: string | number` (без `| undefined`). Заменён на conditional spread `...(isCI ? { workers: 1 } : {})` — свойство опускается локально, Playwright использует default. Заодно вынесен `isCI` хелпер для `forbidOnly`/`retries`.
+
+Остальные optional-свойства (`RequestOptions.headers`, `BaseApiClientOptions.logEnabled`, `ValidationOptions.statusCode`/`schema`, `ApiLogger` options) прошли typecheck без правок — они уже использовались корректно (без явной передачи `undefined`).
+
+**Рефакторинг**: усиление типобезопасности optional-свойств (различение отсутствующего поля и `undefined`)
 
 ---
 
-### Проверка после Этапа 6
+### Проверка после Этапа 6 (с 6.3)
 
 - `npm run lint` — ✅ exit code 0
-- `npm run typecheck` — ✅ exit code 0 (после отката `exactOptionalPropertyTypes`)
+- `npm run typecheck` — ✅ exit code 0 (с `exactOptionalPropertyTypes: true`)
 - IDE linter (ReadLints) — ✅ без ошибок
 
-### Изменённые файлы
+### Изменённые файлы (6.3)
 
-- `tsconfig.json` — `noPropertyAccessFromIndexSignature: true`
-- `playwright.config.ts` — `process.env.CI` → `process.env["CI"]` (3 места)
+- `tsconfig.json` — `exactOptionalPropertyTypes: true`
+- `api/fixtures/fixtures.ts` — `ClientFixtureArgs` с `baseURL: string | undefined`, `requireBaseURL(baseURL: string | undefined)`
+- `playwright.config.ts` — `isCI` хелпер, conditional spread для `workers`
