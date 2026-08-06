@@ -1,230 +1,211 @@
 # Playwright Test Framework
 
-Фреймворк для автоматизации тестирования API и UI на базе Playwright с поддержкой валидации схем через Zod и AJV.
+Фреймворк для API- и UI-тестов на Playwright. Валидация ответов — через Zod и AJV.
 
 ## Содержание
 
+- [Быстрый старт](#быстрый-старт)
 - [Требования](#требования)
-- [Установка](#установка)
-- [Настройка окружения](#настройка-окружения)
-- [Структура проекта](#структура-проекта)
+- [Переменные окружения](#переменные-окружения)
 - [Запуск тестов](#запуск-тестов)
-  - [Локальный запуск](#локальный-запуск)
-  - [Запуск через Docker](#запуск-через-docker)
-- [Команды Makefile](#команды-makefile)
+- [Docker и Makefile](#docker-и-makefile)
 - [Playwright-проекты](#playwright-проекты)
+- [Структура проекта](#структура-проекта)
 - [Архитектура](#архитектура)
-  - [API тесты](#api-тесты)
-  - [UI тесты](#ui-тесты)
 - [Валидация схем](#валидация-схем)
-  - [Zod](#zod)
-  - [AJV](#ajv)
-- [Отчеты](#отчеты)
+- [Отчёты](#отчёты)
+- [Качество кода](#качество-кода)
+
+## Быстрый старт
+
+Минимальный путь «клонировал → запустил» без ключей и UI-браузеров — suite `noOAuth` (публичный [JSONPlaceholder](https://jsonplaceholder.typicode.com)).
+
+```bash
+git clone https://github.com/slavaPislyakov/playwright_experience.git
+cd playwright_experience
+
+npm install
+
+# Минимальный .env — достаточно для API без авторизации
+cat > .env << 'EOF'
+BASE_URL_NO_AUTH=https://jsonplaceholder.typicode.com
+EOF
+
+# Запуск первого набора тестов
+npm run test:api:no_oauth
+```
+
+Если тесты прошли — окружение настроено. Дальше можно добавить UI и OAuth-suite (см. [Переменные окружения](#переменные-окружения)).
+
+| Что хотите запустить | Нужно в `.env` | Команда |
+|----------------------|----------------|---------|
+| API без авторизации | `BASE_URL_NO_AUTH` | `npm run test:api:no_oauth` |
+| UI | `BASE_URL_UI` + браузеры Playwright | `npx playwright install chromium` → `npm run test:ui` |
+| API с авторизацией | `BASE_URL_AUTH` + `API_KEY` | `npm run test:api:oauth` |
+| Всё сразу | все переменные выше | `npm run test:all` |
 
 ## Требования
 
-- Node.js 18+
+- Node.js **20+** (в CI используется 20)
 - npm 9+
-- Docker и Docker Compose (опционально, для контейнеризированного запуска)
+- Docker и Docker Compose — опционально, для запуска через контейнер
 
-## Установка
+## Переменные окружения
 
-```bash
-# Клонирование репозитория
-git clone <repository-url>
-cd playwright_experience
-
-# Установка зависимостей
-npm install
-
-# Установка браузеров Playwright
-npx playwright install
-```
-
-## Настройка окружения
-
-Создайте файл `.env` в корне проекта с необходимыми переменными:
+Создайте файл `.env` в корне проекта. Файл в git не коммитится.
 
 ```env
-# URL для API тестов без авторизации
+# Обязательно для npm run test:api:no_oauth
 BASE_URL_NO_AUTH=https://jsonplaceholder.typicode.com
 
-# URL для API тестов с авторизацией
-BASE_URL_AUTH=https://v1.api.isports.staging.srv41880.seosmart.ru
-
-# URL для UI тестов
+# Обязательно для npm run test:ui
 BASE_URL_UI=https://belmeta.com
 
-# Токен авторизации для API тестов (если требуется)
-AUTH_TOKEN=your_token_here
+# Обязательно для npm run test:api:oauth
+# Пример публичного хоста API-Sports Hockey; в CI может быть другой URL из secrets
+BASE_URL_AUTH=https://v1.hockey.api-sports.io
+API_KEY=your_api_sports_key
 ```
+
+Как читаются переменные:
+
+- в `playwright.config.ts` — через `optionalEnv(...)`, поэтому можно запускать один `--project` без остальных переменных;
+- при реальном запросе клиент требует свой `baseURL`; для `UserRole.AUTHORIZED` дополнительно нужен `API_KEY` (заголовок `x-rapidapi-key`).
+
+> `API_KEY` — ключ [API-Sports](https://www.api-sports.io/). Без него suite `apiOAuth` не запустится. Значения для CI хранятся в GitHub Secrets (`BASE_URL_*`, `API_KEY`).
+
+## Запуск тестов
+
+### Локально
+
+```bash
+# API без авторизации (самый простой старт)
+npm run test:api:no_oauth
+
+# UI (нужен Chromium)
+npx playwright install chromium
+npm run test:ui
+
+# API с авторизацией
+npm run test:api:oauth
+
+# Все проекты
+npm run test:all
+
+# Конкретный файл / проект
+npx playwright test api/tests/noAuth/albums.spec.ts
+npx playwright test --project=ui
+
+# Headed / debug / UI Mode
+npx playwright test --project=ui --headed
+npx playwright test ui/tests/main/mainPage.spec.ts --debug
+npm run ui:mode
+```
+
+### Через Docker
+
+Нужен Docker. Переменные берутся из `.env` (файл опционален для compose, но тесты без нужных env упадут).
+
+```bash
+make test-no_oauth   # API без авторизации
+make test-ui         # UI
+make test-oauth      # API с авторизацией
+make test            # все тесты
+```
+
+## Docker и Makefile
+
+| Команда | Описание |
+|---------|----------|
+| `make test` | Все тесты через Docker Compose |
+| `make test-oauth` | API с авторизацией |
+| `make test-no_oauth` | API без авторизации |
+| `make test-ui` | UI-тесты |
+| `make build` | Сборка образа |
+| `make rebuild` | Пересборка без кэша |
+| `make test-report` | Открыть HTML-отчёт Playwright |
+| `make clean` | Остановить контейнеры и удалить отчёт |
+| `make logs` | Логи docker compose |
+| `make debug` | Shell внутри контейнера |
+| `make help` | Список команд |
+
+Образ: `mcr.microsoft.com/playwright:v1.60.0-noble`. В compose используется анонимный volume `/app/node_modules`, чтобы хостовые `node_modules` не перекрывали зависимости из образа.
+
+## Playwright-проекты
+
+| Проект | `testDir` | `baseURL` | Авторизация |
+|--------|-----------|-----------|-------------|
+| `noOAuth` | `api/tests/noAuth` | `BASE_URL_NO_AUTH` | нет |
+| `apiOAuth` | `api/tests/apiOAuth` | `BASE_URL_AUTH` | да (`API_KEY` при `UserRole.AUTHORIZED`) |
+| `ui` | `ui/tests` | `BASE_URL_UI` | нет |
+
+Проекты независимы: нет `setup`-проекта и нет `dependencies` между ними. Каждый можно запускать отдельно через `--project=...`.
 
 ## Структура проекта
 
 ```
-├── api/                           # API тесты и утилиты
-│   ├── assertions/                # Классы для assertions
-│   ├── clients/                   # API клиенты
-│   ├── fixtures/                  # Кастомные фикстуры
-│   ├── tests/                     # Тест-кейсы
-│   │   ├── apiOAuth/             # Тесты с авторизацией
-│   │   └── noAuth/               # Тесты без авторизации
-│   ├── types/                     # TypeScript типы и схемы
-│   │   ├── common/               # Общие типы
-│   │   └── response/             # Схемы ответов
-│   │       ├── apiSportsIO/      # Схемы для apiSportsIO API
-│   │       └── jsonplaceholder/  # Схемы для jsonplaceholder API
-│   └── utils/                     # Утилиты и хелперы
-├── ui/                            # UI тесты
-│   ├── components/               # Компоненты страниц
-│   ├── data/                     # Тестовые данные
-│   ├── fixtures/                 # Кастомные фикстуры
-│   ├── pages/                    # Page Objects
-│   ├── steps/                    # Step Objects
-│   └── tests/                    # Тест-кейсы
-├── playwright.config.ts          # Конфигурация Playwright
-├── docker-compose.yml            # Docker Compose конфигурация
-├── Dockerfile                    # Docker образ для тестов
-└── Makefile                      # Команды для автоматизации
+├── api/
+│   ├── assertions/          # RequestAssertions
+│   ├── clients/             # BaseApiClient, AlbumsApiClient, HockeyApiClient
+│   ├── data/                # URL-билдеры
+│   ├── fixtures/            # Playwright fixtures для API
+│   ├── tests/
+│   │   ├── apiOAuth/        # тесты с авторизацией
+│   │   └── noAuth/          # тесты без авторизации
+│   ├── types/
+│   │   ├── common/          # branded types, HttpStatusCode, ValidationResult
+│   │   └── response/        # Zod- и AJV-схемы ответов
+│   └── utils/               # env, logger, валидаторы
+├── ui/
+│   ├── components/          # Component Objects
+│   ├── data/                # тестовые данные / snapshots
+│   ├── fixtures/            # Playwright fixtures для UI
+│   ├── pages/               # Page Objects
+│   ├── steps/               # Step Objects
+│   └── tests/               # UI тест-кейсы
+├── playwright.config.ts
+├── docker-compose.yml
+├── Dockerfile
+└── Makefile
 ```
-
-## Запуск тестов
-
-### Локальный запуск
-
-```bash
-# Запуск всех тестов
-npm run test:all
-
-# Запуск только UI тестов
-npm run test:ui
-
-# Запуск API тестов с авторизацией
-npm run test:api:oauth
-
-# Запуск API тестов без авторизации
-npm run test:api:no_oauth
-
-# Запуск конкретного тестового файла
-npx playwright test api/tests/noAuth/albums.spec.ts
-
-# Запуск в headed режиме (виден браузер)
-npx playwright test ui/tests/main/mainPage.spec.ts --headed
-
-# Запуск в debug режиме
-npx playwright test ui/tests/main/mainPage.spec.ts --debug
-
-# Запуск с UI интерфейсом
-npm run ui:mode
-
-# Запуск конкретного Playwright-проекта (см. "Playwright-проекты" ниже)
-npx playwright test --project=ui
-```
-
-### Запуск через Docker
-
-```bash
-# Запуск всех тестов через Docker Compose
-make test
-
-# Запуск API тестов с авторизацией
-make test-oauth
-
-# Запуск API тестов без авторизации
-make test-no_oauth
-
-# Запуск UI тестов
-make test-ui
-
-# Остановка контейнеров
-make clean
-
-# Просмотр логов
-make logs
-
-# Вход в контейнер для отладки
-make debug
-```
-
-## Команды Makefile
-
-| Команда | Описание |
-|---------|----------|
-| `make test` | Запуск всех тестов через Docker Compose |
-| `make test-oauth` | Запуск API тестов с авторизацией |
-| `make test-no_oauth` | Запуск API тестов без авторизации |
-| `make test-ui` | Запуск UI тестов |
-| `make build` | Сборка Docker образа |
-| `make rebuild` | Пересборка Docker образа без кэша |
-| `make test-report` | Открытие HTML отчета Playwright |
-| `make clean` | Остановка контейнеров и очистка |
-| `make logs` | Просмотр логов Docker Compose |
-| `make debug` | Вход в контейнер (shell) |
-| `make help` | Список всех команд |
-
-## Playwright-проекты
-
-В `playwright.config.ts` определены три Playwright-проекта, каждый со своим `testDir`
-и своим `baseURL`, читаемым из переменных окружения лениво (см. ниже):
-
-| Проект | `testDir` | Переменная `baseURL` | Требует авторизацию |
-|---|---|---|---|
-| `apiOAuth` | `api/tests/apiOAuth` | `BASE_URL_AUTH` | да (`API_KEY`, только когда тест запрашивает `UserRole.AUTHORIZED`) |
-| `noOAuth` | `api/tests/noAuth` | `BASE_URL_NO_AUTH` | нет |
-| `ui` | `ui/tests` | `BASE_URL_UI` | нет |
-
-Проекта `setup` (auth-сетап через `*.setup.ts` + `storageState`) в проекте **нет** —
-никаких зависимостей (`dependencies: [...]`) между проектами тоже нет. Каждый проект
-можно запускать изолированно (`--project=ui`, `--project=apiOAuth`, ...), не имея на
-руках переменных окружения, нужных другим проектам — `baseURL` читается через мягкий
-`optionalEnv(...)` в `playwright.config.ts`, а обязательность конкретной переменной
-(`requireEnv(...)`) проверяется только в рантайме, когда она действительно нужна
-(`BaseApiClient` — при первом запросе, `getAuthHeaders` — только для
-`UserRole.AUTHORIZED`).
 
 ## Архитектура
 
-### API тесты
+### API
 
-Фреймворк использует паттерн **API Client** для инкапсуляции логики работы с API:
+Паттерн **API Client**:
 
-**Структура:**
-- `BaseApiClient` — базовый класс с HTTP методами и логированием
-- `AlbumsApiClient`, `HockeyApiClient` — специализированные клиенты для конкретных API
-- `RequestAssertions` — assertions для проверки ответов
-- `ApiResponseValidator` — валидация ответов через Zod/AJV схемы
+- `BaseApiClient` — HTTP-методы и логирование;
+- `AlbumsApiClient` / `HockeyApiClient` — клиенты конкретных API;
+- `RequestAssertions` — проверки статуса и схемы (Zod / AJV);
+- branded types (`AlbumId`, `CountryCode`) и enum `HttpStatusCode` — типобезопасные параметры.
 
-**Пример теста:**
+Пример (актуальный стиль тестов):
 
 ```typescript
 import { test } from "@@/api/fixtures/fixtures";
-import { AlbumsArraySchema, AlbumSchema } from "@@/api/types/response/jsonplaceholder/albums/zod/albumsSchemas";
-import { AlbumId } from "@@/api/types/common/brandedTypes";
+import { AlbumsArraySchema } from "@@/api/types/response/jsonplaceholder/albums/zod/albumsSchemas";
+import { HttpStatusCode } from "@@/api/types/common/httpStatusCode";
 
 test.describe("Check 'ALBUMS' endpoint", () => {
-  test("Get all albums", async ({ albumsApiClient, responseValidator }) => {
+  test("Get all albums", async ({ albumsApiClient, requestAssertions }) => {
     const response = await albumsApiClient.getAllAlbums();
-    await responseValidator.validateResponse(response, { schema: AlbumsArraySchema });
-  });
-
-  test("Get album by ID", async ({ albumsApiClient, responseValidator }) => {
-    const response = await albumsApiClient.getAlbumByNumber(AlbumId(1));
-    await responseValidator.validateResponse(response, { schema: AlbumSchema });
+    await requestAssertions.checkStatusCode(response.status(), HttpStatusCode.OK);
+    await requestAssertions.checkJSONResponseSchemaZod(AlbumsArraySchema, response);
   });
 });
 ```
 
-### UI тесты
+### UI
 
-Используется комбинация паттернов **Page Object** и **Step Object**:
+Комбинация **Page Object** + **Step Object**:
 
-**Структура:**
-- `pages/` — Page Objects представляют страницы приложения
-- `components/` — Component Objects для переиспользуемых элементов
-- `steps/` — Step Objects содержат бизнес-логику шагов тестов
-- `fixtures/` — кастомные фикстуры Playwright
+- `pages/` — страницы и селекторы;
+- `components/` — переиспользуемые блоки UI;
+- `steps/` — бизнес-шаги тестов;
+- `fixtures/` — кастомные фикстуры Playwright.
 
-**Пример теста:**
+Пример:
 
 ```typescript
 import { test } from "@@/ui/fixtures/fixture";
@@ -241,87 +222,68 @@ test.describe("Main page:", () => {
 });
 ```
 
-**Доступные фикстуры:**
-
 | Фикстура | Описание |
 |----------|----------|
-| `page` | Страница с автоматическим отловом JS ошибок |
-| `pageWithMonitoring` | Страница с мониторингом HTTP запросов (тест падает при запросах >= 400) |
-| `failOnJSError` | Опция для включения/отключения проверки JS ошибок |
-| `mainPageSteps` | Step Object для главной страницы |
+| `page` | Страница с отловом JS/console ошибок |
+| `pageWithMonitoring` | Падает при HTTP-ответах со статусом ≥ 400 |
+| `failOnJSError` | Вкл/выкл проверку JS-ошибок (`test.use({ failOnJSError: false })`) |
+| `mainPageSteps` | Step Object главной страницы |
+
+Подробнее про иерархию UI: [`ui/Readme.md`](ui/Readme.md).
 
 ## Валидация схем
 
 ### Zod
 
-Рекомендуемый способ валидации с автоматическим выводом TypeScript типов:
+Используется для JSONPlaceholder (albums). Схемы объявляются через `z.strictObject` (лишние поля в ответе отклоняются):
 
 ```typescript
 import { z } from "zod";
 
-export const AlbumSchema = z.object({
+export const AlbumSchema = z.strictObject({
   userId: z.number(),
   id: z.number(),
   title: z.string(),
 });
 
 export type Album = z.infer<typeof AlbumSchema>;
-export const AlbumsArraySchema = z.array(AlbumSchema);
 ```
 
-Использование в тесте:
+В тесте:
 
 ```typescript
-await responseValidator.validateResponse(response, { schema: AlbumsArraySchema });
+await requestAssertions.checkJSONResponseSchemaZod(AlbumSchema, response);
 ```
 
 ### AJV
 
-Валидация через JSON Schema — используется для `apiSportsIO` (hockey) намеренно,
-не как временная мера: AJV-схемы объявлены со `additionalProperties: false`
-(строгая проверка лишних полей ответа), чего текущие Zod-схемы в проекте не
-делают. См. `api/REFACTORING_PLAN.md` (раздел «Этап 4») для деталей, почему
-оба валидатора сосуществуют осознанно, а не являются незавершённой миграцией:
+Используется для apiSportsIO (hockey). JSON Schema с `additionalProperties: false` — строгая проверка лишних полей:
 
 ```typescript
-import { JSONSchemaType } from "ajv";
-
-interface League {
-  league: {
-    id: number;
-    name: string;
-  };
-}
-
-const LeagueSchema: JSONSchemaType<League> = {
-  type: "object",
-  properties: {
-    league: {
-      type: "object",
-      properties: {
-        id: { type: "number" },
-        name: { type: "string" },
-      },
-      required: ["id", "name"],
-    },
-  },
-  required: ["league"],
-};
+await requestAssertions.checkJSONResponseSchemaAjv(CountryInfoArraySchemaAjv, response);
 ```
 
-## Отчеты
+Оба валидатора живут осознанно: Zod — для публичного API, AJV — где нужна строгая JSON Schema.
+
+## Отчёты
 
 ```bash
-# HTML отчет Playwright
-npm run html:report
-
-# Allure отчет
-npm run allure:report
-
-# Открытие последнего отчета через Makefile
-make test-report
+npm run html:report      # HTML-отчёт Playwright
+npm run allure:report    # Allure (нужен Java для allure-commandline)
+make test-report         # то же, что html:report, через Makefile
 ```
 
-Отчеты сохраняются в:
-- `playwright-report/` — HTML отчет Playwright
-- `allure-results/` — результаты для Allure
+Каталоги:
+
+- `playwright-report/` — HTML-отчёт Playwright
+- `allure-results/` — сырые результаты Allure
+
+## Качество кода
+
+```bash
+npm run lint          # ESLint
+npm run lint:fix     # ESLint с автофиксом
+npm run typecheck     # tsc --noEmit
+```
+
+Перед коммитом husky запускает `lint-staged` (см. `package.json` → `lint-staged`). В CI job `static-checks` дополнительно гоняет `typecheck` и `lint` до тестовых jobs.

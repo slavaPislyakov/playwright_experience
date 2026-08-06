@@ -17,6 +17,10 @@
   "author": "",
   "license": "ISC",
   "description": "",
+  "lint-staged": {
+    "*.{ts, json}": "npm run typecheck",
+    "*": "npm run lint"
+  },
   "devDependencies": {
     "@eslint/js": "^9.39.2",
     "@playwright/test": "^1.60.0",
