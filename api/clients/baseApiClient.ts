@@ -7,7 +7,10 @@ type HttpMethod = "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
 
 export interface RequestOptions {
   headers?: Record<string, string>;
-  [key: string]: unknown;
+}
+
+export interface BaseApiClientOptions {
+  logEnabled?: boolean;
 }
 
 export abstract class BaseApiClient {
@@ -15,13 +18,14 @@ export abstract class BaseApiClient {
   private readonly logger: ApiLogger;
   private readonly baseUrl: string;
 
-  constructor(private readonly request: APIRequestContext, role: UserRole, baseURL?: string) {
-    if (!baseURL) {
-      throw new Error("❌ baseURL is required! Check playwright.config.ts or .env");
-    }
-
+  constructor(
+    private readonly request: APIRequestContext,
+    role: UserRole,
+    baseURL: string,
+    options: BaseApiClientOptions = {},
+  ) {
     this.baseUrl = baseURL;
-    this.logger = new ApiLogger(true);
+    this.logger = new ApiLogger(options.logEnabled ?? true);
     this.defaultHeaders = {
       "Content-Type": "application/json",
       ...getAuthHeaders(role),
@@ -36,10 +40,9 @@ export abstract class BaseApiClient {
   }
 
   private buildRequestOptions(options: RequestOptions = {}, data?: unknown): Record<string, unknown> {
-    const { headers, ...restOptions } = options;
+    const { headers } = options;
 
     return {
-      ...restOptions,
       ...(data !== undefined ? { data } : {}),
       headers: this.mergeHeaders(headers),
     };
@@ -54,10 +57,10 @@ export abstract class BaseApiClient {
     const url = `${this.baseUrl}${path}`;
     const requestOptions = this.buildRequestOptions(options, data);
 
-    this.logger.logRequest(method, url, requestOptions);
+    const startTime = this.logger.logRequest(method, url, requestOptions);
 
     const response = await this.sendRequest(method, url, requestOptions);
-    await this.logger.logResponse(response);
+    await this.logger.logResponse(response, startTime);
 
     return response;
   }
@@ -85,27 +88,19 @@ export abstract class BaseApiClient {
     return this.executeRequest("GET", path, options);
   }
 
-  protected postMethod(path: string, data: unknown, options: RequestOptions = {}): Promise<APIResponse> {
+  protected postMethod(path: string, data?: unknown, options: RequestOptions = {}): Promise<APIResponse> {
     return this.executeRequest("POST", path, options, data);
   }
 
-  protected putMethod(path: string, data: unknown, options: RequestOptions = {}): Promise<APIResponse> {
+  protected putMethod(path: string, data?: unknown, options: RequestOptions = {}): Promise<APIResponse> {
     return this.executeRequest("PUT", path, options, data);
   }
 
-  protected patchMethod(path: string, data: unknown, options: RequestOptions = {}): Promise<APIResponse> {
+  protected patchMethod(path: string, data?: unknown, options: RequestOptions = {}): Promise<APIResponse> {
     return this.executeRequest("PATCH", path, options, data);
   }
 
   protected deleteMethod(path: string, options: RequestOptions = {}): Promise<APIResponse> {
     return this.executeRequest("DELETE", path, options);
-  }
-
-  enableLogging(): void {
-    this.logger.enable();
-  }
-
-  disableLogging(): void {
-    this.logger.disable();
   }
 }

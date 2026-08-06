@@ -1,10 +1,12 @@
+import type { AlbumId, CountryCode } from "@@/api/types/common";
+
 export const URLS = {
   API_SPORTS: {
-    COUNTRY_CODE: "/countries/{0}",
+    COUNTRY_CODE: (code: CountryCode): string => `/countries/${code}`,
   },
   ALBUMS: {
     ALBUMS_ALL: "/albums",
-    ALBUMS_ID: "/albums/{0}",
-    ALBUMS_ID_PHOTOS: "/albums/{0}/photos",
+    ALBUMS_ID: (id: AlbumId): string => `/albums/${id}`,
+    ALBUMS_ID_PHOTOS: (id: AlbumId): string => `/albums/${id}/photos`,
   },
-};
+} as const;

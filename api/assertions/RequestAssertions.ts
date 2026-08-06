@@ -7,17 +7,13 @@ import type { HttpStatusCode } from "@@/api/types/common";
 
 import type { JSONSchemaType } from "@@/api/utils/ajv";
 import { ajv } from "@@/api/utils/ajv";
-import { formatObjectsDiff, isJsonObject } from "@@/api/utils/prettyObjectDiff";
 
 type Expect = typeof PlaywrightExpect;
 
-const buildObjectDiffMessage = (expected: unknown, actual: unknown): string => {
-  if (isJsonObject(expected) && isJsonObject(actual)) {
-    return `\n${formatObjectsDiff(expected, actual)}`;
-  }
-
-  return `\nExpected: ${JSON.stringify(expected)}\nActual: ${JSON.stringify(actual)}`;
-};
+interface SchemaValidationResult {
+  success: boolean;
+  errors: string;
+}
 
 const formatAjvErrors = (errors: ErrorObject[] | null | undefined): string => {
   return errors
@@ -42,56 +38,43 @@ const formatZodValidationMessage = (result: z.ZodSafeParseResult<unknown>): stri
 export class RequestAssertions {
   constructor(private readonly expect: Expect) {}
 
-  async checkStatusCode(actualStatusCode: number, expectStatusCode: HttpStatusCode): Promise<void> {
-    await test.step(`Check status code should be equal to: ${expectStatusCode}`, async () => {
-      this.expect(actualStatusCode).toEqual(expectStatusCode);
+  async checkStatusCode(actualStatusCode: number, expectedStatusCode: HttpStatusCode): Promise<void> {
+    await test.step(`Check status code should be equal to: ${expectedStatusCode}`, async () => {
+      this.expect(actualStatusCode).toEqual(expectedStatusCode);
     });
   }
 
   async checkJSONResponseSchemaAjv<T>(responseSchema: JSONSchemaType<T>, response: APIResponse): Promise<void> {
-    await test.step("Check JSON response schema using Ajv", async () => {
-      const jsonResponseData = await response.json();
+    await this.withSchemaValidation("Check JSON response schema using Ajv", response, (data) => {
       const validate = ajv.compile(responseSchema);
-      const isSchemaValid = validate(jsonResponseData);
-
-      this.expect(
-        isSchemaValid,
-        `Validation errors list:\n${formatAjvErrors(validate.errors)}`,
-      ).toBe(true);
+      const isValid = validate(data);
+      return {
+        success: isValid,
+        errors: `Validation errors list:\n${formatAjvErrors(validate.errors)}`,
+      };
     });
   }
 
   async checkJSONResponseSchemaZod<T extends z.ZodType>(responseSchema: T, response: APIResponse): Promise<void> {
-    await test.step("Check JSON response schema using Zod", async () => {
+    await this.withSchemaValidation("Check JSON response schema using Zod", response, (data) => {
+      const result = responseSchema.safeParse(data);
+      return {
+        success: result.success,
+        errors: formatZodValidationMessage(result),
+      };
+    });
+  }
+
+  private async withSchemaValidation(
+    stepName: string,
+    response: APIResponse,
+    validate: (data: unknown) => SchemaValidationResult,
+  ): Promise<void> {
+    await test.step(stepName, async () => {
       const jsonResponseData = await response.json();
-      const validationResult = responseSchema.safeParse(jsonResponseData);
+      const result = validate(jsonResponseData);
 
-      this.expect(
-        validationResult.success,
-        formatZodValidationMessage(validationResult),
-      ).toBe(true);
-    });
-  }
-
-  async partialCompareTwoObjects<T>(objectA: Partial<T>, objectB: T): Promise<void> {
-    await test.step("Partial compare two objects", async () => {
-      const isObjectBIncludesObjectA = Object.keys(objectA).every((key) => {
-        return objectA[key as keyof T] === objectB[key as keyof T];
-      });
-
-      this.expect(
-        isObjectBIncludesObjectA,
-        `ObjectB does not include ObjectA.${buildObjectDiffMessage(objectA, objectB)}`,
-      ).toBe(true);
-    });
-  }
-
-  async fullComparingTwoObjects(actualObject: unknown, expectedObject: unknown): Promise<void> {
-    await test.step("Full comparing two objects", async () => {
-      this.expect(
-        actualObject,
-        `Objects are not equal.${buildObjectDiffMessage(expectedObject, actualObject)}`,
-      ).toStrictEqual(expectedObject);
+      this.expect(result.success, result.errors).toBe(true);
     });
   }
 }

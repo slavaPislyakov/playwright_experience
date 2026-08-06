@@ -1,8 +1,19 @@
 import * as dotenv from "dotenv";
 
-import path from "path";
+let envInitialized = false;
 
-dotenv.config({ path: path.resolve(process.cwd(), ".env") });
+/**
+ * Loads `.env` into `process.env`. Idempotent — safe to call multiple times.
+ * Called explicitly from `playwright.config.ts` so that env access is
+ * deterministic and not a hidden module-import side effect.
+ */
+export const initEnv = (): void => {
+  if (envInitialized) return;
+  dotenv.config();
+  envInitialized = true;
+};
+
+export const optionalEnv = (name: string): string | undefined => process.env[name];
 
 export const requireEnv = (name: string): string => {
   const value = process.env[name];

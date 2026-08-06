@@ -1,6 +1,7 @@
-import { test as base, expect } from "@playwright/test";
+import { test as base, expect, type APIRequestContext } from "@playwright/test";
 
 import { AlbumsApiClient } from "@@/api/clients/albumsApiClient";
+import type { BaseApiClient } from "@@/api/clients/baseApiClient";
 import { HockeyApiClient } from "@@/api/clients/hockeyApiClient";
 
 import { RequestAssertions } from "@@/api/assertions/RequestAssertions";
@@ -16,16 +17,34 @@ type ApiFixtures = {
   role: UserRole;
 };
 
+const requireBaseURL = (baseURL?: string): string => {
+  if (!baseURL) {
+    throw new Error("❌ baseURL is required! Check playwright.config.ts or .env");
+  }
+  return baseURL;
+};
+
+type ClientConstructor<T extends BaseApiClient> = new (
+  request: APIRequestContext,
+  role: UserRole,
+  baseURL: string,
+) => T;
+
+const createApiClient = <T extends BaseApiClient>(
+  ctor: ClientConstructor<T>,
+) =>
+  async (
+    { request, role, baseURL }: { request: APIRequestContext; role: UserRole; baseURL?: string },
+    use: (client: T) => Promise<void>,
+  ): Promise<void> => {
+    await use(new ctor(request, role, requireBaseURL(baseURL)));
+  };
+
 export const test = base.extend<ApiFixtures>({
   role: [UserRole.GUEST, { option: true }],
 
-  albumsApiClient: async ({ request, role, baseURL }, use) => {
-    await use(new AlbumsApiClient(request, role, baseURL));
-  },
-
-  hockeyApiClient: async ({ request, role, baseURL }, use) => {
-    await use(new HockeyApiClient(request, role, baseURL));
-  },
+  albumsApiClient: createApiClient(AlbumsApiClient),
+  hockeyApiClient: createApiClient(HockeyApiClient),
 
   requestAssertions: async ({}, use) => {
     await use(new RequestAssertions(expect));

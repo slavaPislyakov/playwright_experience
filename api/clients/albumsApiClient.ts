@@ -7,8 +7,6 @@ import { URLS } from "@@/api/data/urls";
 
 import type { AlbumId } from "@@/api/types/common";
 
-import { stringFormat } from "@@/api/utils/stringUtils";
-
 export class AlbumsApiClient extends BaseApiClient {
   getAllAlbums(): Promise<APIResponse> {
     return test.step("Get all albums request", () => this.getMethod(URLS.ALBUMS.ALBUMS_ALL));
@@ -16,13 +14,13 @@ export class AlbumsApiClient extends BaseApiClient {
 
   getAlbumByNumber(index: AlbumId): Promise<APIResponse> {
     return test.step(`Get album by number "${index}" request`, () => {
-      return this.getMethod(stringFormat(URLS.ALBUMS.ALBUMS_ID, index));
+      return this.getMethod(URLS.ALBUMS.ALBUMS_ID(index));
     });
   }
 
   getAlbumPhotosByNumber(index: AlbumId): Promise<APIResponse> {
     return test.step(`Get album photos by number "${index}" request`, () => {
-      return this.getMethod(stringFormat(URLS.ALBUMS.ALBUMS_ID_PHOTOS, index));
+      return this.getMethod(URLS.ALBUMS.ALBUMS_ID_PHOTOS(index));
     });
   }
 }

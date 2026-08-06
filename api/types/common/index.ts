@@ -5,7 +5,9 @@ export type AlbumId = number & { readonly __brand: unique symbol };
 
 export const AlbumId = (id: number): AlbumId => id as AlbumId;
 
-// Country Code type - prevents mixing with regular strings
+// Country Code type - prevents mixing with regular strings.
+// The constructor normalizes input to UPPER CASE so callers can pass
+// "by" or "BY" interchangeably and still get the same branded value.
 export type CountryCode = string & { readonly __brand: unique symbol };
 
 export const CountryCode = (code: string): CountryCode => code.toUpperCase() as CountryCode;
@@ -27,8 +29,3 @@ export const HttpStatusCode = {
   BAD_GATEWAY: 502 as HttpStatusCode,
   SERVICE_UNAVAILABLE: 503 as HttpStatusCode,
 } as const;
-
-// Type guard for HttpStatusCode
-export const isValidHttpStatusCode = (code: number): code is HttpStatusCode => {
-  return code >= 100 && code < 600;
-};

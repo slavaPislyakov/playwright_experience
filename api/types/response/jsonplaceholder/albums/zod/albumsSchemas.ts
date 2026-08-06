@@ -1,7 +1,9 @@
 import { z } from "zod";
 
 // Base schema for album
-export const AlbumSchema = z.object({
+// .strict() rejects unexpected extra fields — matches the strictness AJV gets
+// for free via `additionalProperties: false`.
+export const AlbumSchema = z.strictObject({
   userId: z.number(),
   id: z.number(),
   title: z.string(),
@@ -14,7 +16,7 @@ export const AlbumsArraySchema = z.array(AlbumSchema);
 export type AlbumsArray = z.infer<typeof AlbumsArraySchema>;
 
 // Schema for album photos
-export const AlbumPhotoSchema = z.object({
+export const AlbumPhotoSchema = z.strictObject({
   albumId: z.number(),
   id: z.number(),
   title: z.string(),

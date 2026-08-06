@@ -1,117 +1,65 @@
 import { defineConfig, devices } from "@playwright/test";
-import * as dotenv from "dotenv";
-import { requireEnv } from "./api/utils/envUtils";
 
+import { initEnv, optionalEnv } from "./api/utils/envUtils";
 
-/**
- * See https://playwright.dev/docs/test-configuration.
- */
-
-dotenv.config();
+initEnv();
 
 /**
  * See https://playwright.dev/docs/test-configuration.
+ *
+ * Playwright evaluates the whole `projects[]` array eagerly at config-load time,
+ * even when only a single project is selected via `--project=...`. Using
+ * `requireEnv` here would force every env var of every project to be present
+ * for any single-project run. Instead we read env vars softly here and let each
+ * project fail on its own at usage time (BaseApiClient/headerUtils already throw
+ * a clear error when a required value turns out to be missing at runtime).
  */
 export default defineConfig({
-  // ===GLOBAL_SETTINGS===
-  // testDir: './tests',
   /* Run tests in files in parallel */
   fullyParallel: true,
   /* Fail the build on CI if you accidentally left test.only in the source code. */
-  forbidOnly: !!process.env.CI,
+  forbidOnly: !!process.env["CI"],
   /* Retry on CI only */
-  retries: process.env.CI ? 2 : 0,
+  retries: process.env["CI"] ? 2 : 0,
   /* Opt out of parallel tests on CI. */
-  workers: process.env.CI ? 1 : undefined,
+  workers: process.env["CI"] ? 1 : undefined,
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
   reporter: [
     ["html", { outputFolder: "playwright-report", open: "never", title: "My Report" }],
     ["allure-playwright", { outputFolder: "allure-results" }],
   ],
 
-//   // ===GLOBAL_SETTINGS_FOR_EXPECTED===
-//   expect: {
-// },
-
-
-  // ===SETTINGS_FOR_ALL_PROJECTS===
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {
-    /* Base URL to use in actions like `await page.goto('/')`. */
-    // baseURL: 'http://127.0.0.1:3000',
-
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
     trace: "on-first-retry",
     screenshot: "only-on-failure",
     video: "on-first-retry",
   },
 
-  // ===SETTINGS_FOR_EVERY_PROJECTS===
   /* Configure projects for major browsers */
   projects: [
-    { name: "setup", testMatch: /.*\.setup\.ts/ },
     {
       name: "apiOAuth",
-      use: { 
-        ...devices["Desktop Chrome"], 
-        baseURL: requireEnv('BASE_URL_AUTH') 
+      use: {
+        baseURL: optionalEnv("BASE_URL_AUTH"),
       },
       testDir: "./api/tests/apiOAuth",
     },
     {
       name: "noOAuth",
-      use: { 
-        ...devices["Desktop Chrome"],
-        baseURL: requireEnv('BASE_URL_NO_AUTH') 
+      use: {
+        baseURL: optionalEnv("BASE_URL_NO_AUTH"),
       },
       testDir: "./api/tests/noAuth",
     },
     {
       name: "ui",
-      use: { 
+      use: {
         ...devices["Desktop Chrome"],
-        baseURL: requireEnv('BASE_URL_UI') 
-     },
+        baseURL: optionalEnv("BASE_URL_UI"),
+      },
       testDir: "./ui/tests",
-      dependencies: ["setup"],
-    }
-
-    // {
-
-    //   name: 'firefox',
-    //   use: { ...devices['Desktop Firefox'] },
-    // },
-
-    // {
-    //   name: 'webkit',
-    //   use: { ...devices['Desktop Safari'] },
-    // },
-
-    /* Test against mobile viewports. */
-    // {
-    //   name: 'Mobile Chrome',
-    //   use: { ...devices['Pixel 5'] },
-    // },
-    // {
-    //   name: 'Mobile Safari',
-    //   use: { ...devices['iPhone 12'] },
-    // },
-
-    /* Test against branded browsers. */
-    // {
-    //   name: 'Microsoft Edge',
-    //   use: { ...devices['Desktop Edge'], channel: 'msedge' },
-    // },
-    // {
-    //   name: 'Google Chrome',
-    //   use: { ...devices['Desktop Chrome'], channel: 'chrome' },
-    // },
+    },
   ],
-
-  /* Run your local dev server before starting the tests */
-  // webServer: {
-  //   command: 'npm run start',
-  //   url: 'http://127.0.0.1:3000',
-  //   reuseExistingServer: !process.env.CI,
-  // },
 });

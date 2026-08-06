@@ -5,31 +5,22 @@ export enum UserRole {
   GUEST = "guest",
 }
 
-interface ApiUser {
-  apiKey?: string;
-  role: UserRole;
-}
-
-const API_USERS: Record<UserRole, ApiUser> = {
-  [UserRole.AUTHORIZED]: {
-    apiKey: requireEnv("API_KEY"),
-    role: UserRole.AUTHORIZED,
-  },
-  [UserRole.GUEST]: {
-    role: UserRole.GUEST,
-  },
-};
-
+/**
+ * Builds the headers for a given role lazily — `requireEnv("API_KEY")` is only
+ * invoked when a caller actually asks for AUTHORIZED headers, not at module
+ * import time. This lets `--project=ui`/`--project=noOAuth` runs succeed
+ * without `API_KEY` being set, since those suites never request AUTHORIZED
+ * headers.
+ */
 export const getAuthHeaders = (role: UserRole): Record<string, string> => {
-  const user = API_USERS[role];
-
-  if (!user) {
-    throw new Error(`Unknown role: ${role}`);
+  switch (role) {
+    case UserRole.AUTHORIZED:
+      return { "x-rapidapi-key": requireEnv("API_KEY") };
+    case UserRole.GUEST:
+      return {};
+    default: {
+      const _exhaustive: never = role;
+      throw new Error(`Unknown UserRole: ${_exhaustive}`);
+    }
   }
-
-  if (user.role === UserRole.AUTHORIZED && user.apiKey) {
-    return { "x-rapidapi-key": user.apiKey };
-  }
-
-  return {};
 };
