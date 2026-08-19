@@ -4,7 +4,7 @@ export class Navigation {
   readonly navigationElement: Locator;
 
   constructor(readonly page: Page) {
-    this.navigationElement = this.page.locator(".supernova-overlay__navi");
+    this.navigationElement = this.page.locator("[data-qa='supernova-navi-dashboard']");
   }
 
   getNavigationElement(): Locator {

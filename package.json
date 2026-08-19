@@ -18,7 +18,7 @@
   "license": "ISC",
   "description": "",
   "lint-staged": {
-    "*.{ts, json}": "npm run typecheck",
+    "*.{ts,json}": "bash -c 'npm run typecheck'",
     "*": "npm run lint"
   },
   "devDependencies": {

@@ -2,10 +2,10 @@ import type { Locator, Page } from "@playwright/test";
 
 import { BasePage } from "@@/ui/pages/basePage";
 
-export type BlockName = "navigationBlock";
+export type BlockName = "jobInOtherCitiesBlock";
 
 export interface PageBlocks {
-  navigationBlock: Locator;
+  jobInOtherCitiesBlock: Locator;
 }
 
 export class MainPage extends BasePage {
@@ -21,7 +21,9 @@ export class MainPage extends BasePage {
     this.searchField = this.page.locator("[data-hh-tab-id='searchVacancy'] [data-qa='search-input']");
     this.findButton = this.page.locator("[data-qa='search-button']");
     this.blocks = {
-      navigationBlock: this.page.locator('[class="supernova-navi supernova-navi_lvl-1 supernova-navi_main-content"]'),
+      jobInOtherCitiesBlock: this.page
+        .getByRole("heading", { name: "Работа в других городах" })
+        .locator("xpath=ancestor::*[.//a[contains(., 'Работа в')]][1]"),
     };
   }
 
