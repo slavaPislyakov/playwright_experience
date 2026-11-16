@@ -1,12 +1,11 @@
-FROM mcr.microsoft.com/playwright:v1.60.0-noble
+# Образ уже содержит браузеры ровно этой версии; @playwright/test в package.json
+# зафиксирован точной версией (без ^) — при обновлении зависимости менять тег синхронно
+FROM mcr.microsoft.com/playwright:v1.65.0-noble
 
 WORKDIR /app
 
 COPY package*.json ./
 RUN npm ci
-
-# Установка браузеров Playwright (обязательно при несовпадении версий)
-RUN npx playwright install
 
 COPY . .
 

@@ -3,6 +3,31 @@ import type { APIResponse } from "@playwright/test";
 
 import { STATUS_CODES } from "node:http";
 
+const SENSITIVE_HEADERS: ReadonlySet<string> = new Set([
+  "authorization",
+  "proxy-authorization",
+  "api-key",
+  "x-api-key",
+  "x-rapidapi-key",
+  "cookie",
+  "set-cookie",
+]);
+
+const MAX_BODY_LENGTH = 2048;
+
+export const truncateBody = (text: string): string => {
+  if (text.length <= MAX_BODY_LENGTH) {
+    return text;
+  }
+  return `${text.slice(0, MAX_BODY_LENGTH)}\n…(truncated, ${text.length} chars total)`;
+};
+
+export const maskSensitiveHeaders = (headers: Record<string, string>): Record<string, string> => {
+  return Object.fromEntries(Object.entries(headers).map(([name, value]) => {
+    return [name, SENSITIVE_HEADERS.has(name.toLowerCase()) ? "***" : value];
+  }));
+};
+
 export class ApiLogger {
   private readonly enabled: boolean;
 
@@ -33,7 +58,7 @@ export class ApiLogger {
 
     if (headers && Object.keys(headers).length) {
       console.log("HEADERS:");
-      console.log(this.formatObject(headers));
+      console.log(this.formatObject(maskSensitiveHeaders(headers)));
     }
 
     if (data !== undefined) {
@@ -67,7 +92,7 @@ export class ApiLogger {
     const headers = response.headers();
     if (headers && Object.keys(headers).length) {
       console.log("RESPONSE HEADERS:");
-      console.log(this.formatObject(headers));
+      console.log(this.formatObject(maskSensitiveHeaders(headers)));
     }
   }
 
@@ -96,9 +121,9 @@ export class ApiLogger {
 
   private formatObject(obj: unknown): string {
     try {
-      return JSON.stringify(obj, null, 2).replace(/^/gm, "  ");
+      return truncateBody(JSON.stringify(obj, null, 2)).replace(/^/gm, "  ");
     } catch {
-      return `  ${String(obj)}`;
+      return `  ${truncateBody(String(obj))}`;
     }
   }
 }

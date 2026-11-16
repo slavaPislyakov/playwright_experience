@@ -1,16 +1,16 @@
-.PHONY: test test-oauth build rebuild test-report clean logs debug
+.PHONY: test build rebuild test-report clean logs debug
 
 test:
 	docker compose up --build --abort-on-container-exit
-
-test-oauth:
-	TEST_SCRIPT=test:api:oauth docker compose up --build --abort-on-container-exit
 
 test-no_oauth:
 	TEST_SCRIPT=test:api:no_oauth docker compose up --build --abort-on-container-exit
 
 test-ui:
 	TEST_SCRIPT=test:ui docker compose up --build --abort-on-container-exit
+
+test-smoke:
+	TEST_SCRIPT=test:smoke docker compose up --build --abort-on-container-exit
 
 build:
 	docker compose build
@@ -33,9 +33,9 @@ debug:
 
 help:
 	@echo "make test          - запустить основную пачку тестов через docker compose"
-	@echo "make test-oauth    - запустить API-тесты c авторизацией"
 	@echo "make test-no_oauth - запустить API-тесты без авторизацией"
 	@echo "make test-ui       - запустить UI-тесты"
+	@echo "make test-smoke    - запустить smoke-тесты (@smoke), API + UI"
 	@echo "make build         - собрать Docker-образ"
 	@echo "make test-report   - открыть HTML-отчёт Playwright"
 	@echo "make clean         - удалить контейнеры, volumes и отчёт"

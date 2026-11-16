@@ -22,13 +22,13 @@ export class MainPageSteps extends CommonSteps {
       const elementText = await this.mainPage.getMainPageAnonymousHeaderText();
 
       expect(elementText).toStrictEqual(text);
-    });
+    }, { params: { text } });
   }
 
   async typeTextInSearchField(text: string): Promise<void> {
     await test.step(`Type ${text} in search field`, async () => {
       await this.mainPage.typeTextInSearchField(text);
-    });
+    }, { params: { text } });
   }
 
   async selectFindButton(): Promise<void> {
@@ -42,6 +42,6 @@ export class MainPageSteps extends CommonSteps {
       const block = this.mainPage.getBlock(blockName);
 
       await expect(block).toMatchAriaSnapshot(blocks[blockName]);
-    });
+    }, { params: { blockName } });
   }
 }

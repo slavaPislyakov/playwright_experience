@@ -1,12 +1,11 @@
 import eslintJS from "@eslint/js";
 import stylistic from "@stylistic/eslint-plugin";
-import eslintPluginTS from "@typescript-eslint/eslint-plugin";
 import eslintParserTS from "@typescript-eslint/parser";
-import importPlugin from "eslint-plugin-import";
+import importX from "eslint-plugin-import-x";
 import jsoncPlugin from "eslint-plugin-jsonc";
 import playwright from "eslint-plugin-playwright";
 import globals from "globals";
-import jsonParser from "jsonc-eslint-parser";
+import * as jsonParser from "jsonc-eslint-parser";
 import eslintTS from "typescript-eslint";
 
 const baseCodeRules = {
@@ -85,10 +84,14 @@ const typescriptRules = {
   "@typescript-eslint/no-unused-vars": "error",
   "@typescript-eslint/no-unsafe-return": "error",
   "@typescript-eslint/no-explicit-any": ["error", { fixToUnknown: true }],
+  "@typescript-eslint/consistent-type-imports": ["error", { prefer: "type-imports" }],
+  "@typescript-eslint/no-misused-promises": "error",
+  "@typescript-eslint/require-await": "warn",
+  "@typescript-eslint/no-unnecessary-type-assertion": "error",
 };
 
 const importRules = {
-  "import/order": [
+  "import-x/order": [
     "error",
     {
       "groups": ["external", "builtin", "internal", "parent", "sibling", "index", "object"],
@@ -109,7 +112,9 @@ const importRules = {
       "newlines-between": "always-and-inside-groups",
     },
   ],
-  "import/newline-after-import": "error",
+  "import-x/newline-after-import": "error",
+  "import-x/no-unresolved": "error",
+  "import-x/no-duplicates": "warn",
 };
 
 const commonRules = {
@@ -142,20 +147,20 @@ const baseJsConfig = {
 };
 
 const typeScriptConfig = {
-  files: ["ui/**/*.ts", "api/**/*.ts"],
+  files: ["ui/**/*.ts", "api/**/*.ts", "playwright.config.ts"],
   plugins: {
-    "@typescript-eslint": eslintPluginTS,
+    "@typescript-eslint": eslintTS.plugin,
     "@stylistic": stylistic,
-    import: importPlugin,
+    "import-x": importX,
     playwright: playwright,
   },
   settings: {
-    "import/resolver": {
+    "import-x/resolver": {
       typescript: {
         project: "tsconfig.json",
       },
     },
-    "import/external-module-folders": ["node_modules", "@types"],
+    "import-x/external-module-folders": ["node_modules", "@types"],
   },
   languageOptions: {
     parser: eslintParserTS,
@@ -176,8 +181,8 @@ const typeScriptConfig = {
         assertFunctionPatterns: [
           // API assertions
           "checkStatusCode",
-          "checkJSONResponseSchemaAjv",
           "checkJSONResponseSchemaZod",
+          "checkEveryItemHasFieldValue",
           "partialCompareTwoObjects",
           "fullComparingTwoObjects",
           "validateResponse",
@@ -186,6 +191,15 @@ const typeScriptConfig = {
           "checkNavigationElementIsVisible",
           "checkBlockOnPage",
           "checkCurrentUrl",
+          "checkResultsHeaderContains",
+          "checkVacancyItemsArePresent",
+          "checkEmptySearchBlockIsVisible",
+          "checkVacancyTitleIsVisible",
+          "checkVacancyCompanyNameIsVisible",
+          "checkVacancyDescriptionIsNotEmpty",
+          "checkVacancyContentBlocksAreVisible",
+          "checkCookiePolicyBannerIsVisible",
+          "checkCookiePolicyBannerIsHidden",
         ],
       },
     ],
@@ -193,7 +207,7 @@ const typeScriptConfig = {
 };
 
 const jsonConfig = {
-  files: ["ui/**/*.json"],
+  files: ["{ui,api}/**/*.json"],
   plugins: {
     "jsonc": jsoncPlugin,
   },

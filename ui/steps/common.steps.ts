@@ -5,6 +5,7 @@ import { NavigationSteps } from "@@/ui/steps/components/navigation.steps";
 
 import { BasePage } from "@@/ui/pages/basePage";
 
+import { CookieBannerSteps } from "./components/cookieBanner.steps";
 import { RegistrationModalSteps } from "./components/registrationModal.steps";
 
 export abstract class CommonSteps {
@@ -13,11 +14,13 @@ export abstract class CommonSteps {
   readonly basePage: BasePage;
   readonly navigationSteps: NavigationSteps;
   readonly registrationModalSteps: RegistrationModalSteps;
+  readonly cookieBannerSteps: CookieBannerSteps;
 
   constructor(readonly page: Page) {
     this.basePage = new BasePage(this.page);
     this.navigationSteps = new NavigationSteps(this.page);
     this.registrationModalSteps = new RegistrationModalSteps(this.page);
+    this.cookieBannerSteps = new CookieBannerSteps(this.page);
   }
 
   async navigateToPage(): Promise<void> {
@@ -30,6 +33,6 @@ export abstract class CommonSteps {
     await test.step(`Check url contains value ${url}`, async () => {
 
       await expect(this.page).toHaveURL(new RegExp(url));
-    });
+    }, { params: { url } });
   }
 }

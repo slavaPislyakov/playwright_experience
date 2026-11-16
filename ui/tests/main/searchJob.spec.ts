@@ -1,10 +1,15 @@
 import { test } from "@@/ui/fixtures/fixture";
 
-test.describe("Search jobs and check error in browser console", () => {
-  test.fail(true, "Поиск вакансий провоцирует известную ошибку в консоли");
+// Шум фингерпринт-скриптов сайта: попытки загрузить chrome-extension://-ресурсы
+// для детекта установленных расширений браузера, а не ошибка самого сайта
+const extensionProbeError: RegExp = /Fetch API cannot load chrome-extension:/;
 
+test.use({ jsErrorAllowlist: [extensionProbeError] });
+
+test.describe("Search jobs and check browser console", () => {
   test.beforeEach(async ({ mainPageSteps }) => {
     await mainPageSteps.navigateToPage();
+    await mainPageSteps.cookieBannerSteps.acceptCookiesPolicyIfVisible();
   });
 
   test("Search 'Javascript' jobs", async ({ mainPageSteps }) => {

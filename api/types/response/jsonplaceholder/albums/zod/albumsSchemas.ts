@@ -25,3 +25,7 @@ export type AlbumPhoto = z.infer<typeof AlbumPhotoSchema>;
 export const AlbumPhotosSchema = z.array(AlbumPhotoSchema);
 
 export type AlbumPhotos = z.infer<typeof AlbumPhotosSchema>;
+
+export const EmptyAlbumResponseSchema = z.strictObject({});
+
+export type EmptyAlbumResponse = z.infer<typeof EmptyAlbumResponseSchema>;

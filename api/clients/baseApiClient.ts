@@ -1,6 +1,8 @@
 import type { APIRequestContext, APIResponse } from "@playwright/test";
 
-import { getAuthHeaders, UserRole } from "@@/api/utils/headerUtils";
+import { attachRequest, attachResponse } from "@@/api/utils/allureAttachments";
+import type { UserRole } from "@@/api/utils/headerUtils";
+import { getAuthHeaders } from "@@/api/utils/headerUtils";
 import { ApiLogger } from "@@/api/utils/logger";
 
 type HttpMethod = "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
@@ -58,9 +60,11 @@ export abstract class BaseApiClient {
     const requestOptions = this.buildRequestOptions(options, data);
 
     const startTime = this.logger.logRequest(method, url, requestOptions);
+    await attachRequest(method, url, requestOptions);
 
     const response = await this.sendRequest(method, url, requestOptions);
     await this.logger.logResponse(response, startTime);
+    await attachResponse(method, url, response);
 
     return response;
   }

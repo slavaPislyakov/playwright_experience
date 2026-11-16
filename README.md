@@ -1,6 +1,6 @@
 # Playwright Test Framework
 
-Фреймворк для API- и UI-тестов на Playwright. Валидация ответов — через Zod и AJV.
+Фреймворк для API- и UI-тестов на Playwright. Валидация ответов — через Zod.
 
 ## Содержание
 
@@ -35,13 +35,12 @@ EOF
 npm run test:api:no_oauth
 ```
 
-Если тесты прошли — окружение настроено. Дальше можно добавить UI и OAuth-suite (см. [Переменные окружения](#переменные-окружения)).
+Если тесты прошли — окружение настроено. Дальше можно добавить UI (см. [Переменные окружения](#переменные-окружения)).
 
 | Что хотите запустить | Нужно в `.env` | Команда |
 |----------------------|----------------|---------|
 | API без авторизации | `BASE_URL_NO_AUTH` | `npm run test:api:no_oauth` |
 | UI | `BASE_URL_UI` + браузеры Playwright | `npx playwright install chromium` → `npm run test:ui` |
-| API с авторизацией | `BASE_URL_AUTH` + `API_KEY` | `npm run test:api:oauth` |
 | Всё сразу | все переменные выше | `npm run test:all` |
 
 ## Требования
@@ -59,20 +58,15 @@ npm run test:api:no_oauth
 BASE_URL_NO_AUTH=https://jsonplaceholder.typicode.com
 
 # Обязательно для npm run test:ui
-BASE_URL_UI=https://belmeta.com
-
-# Обязательно для npm run test:api:oauth
-# Пример публичного хоста API-Sports Hockey; в CI может быть другой URL из secrets
-BASE_URL_AUTH=https://v1.hockey.api-sports.io
-API_KEY=your_api_sports_key
+BASE_URL_UI=https://rabota.by/
 ```
 
 Как читаются переменные:
 
 - в `playwright.config.ts` — через `optionalEnv(...)`, поэтому можно запускать один `--project` без остальных переменных;
-- при реальном запросе клиент требует свой `baseURL`; для `UserRole.AUTHORIZED` дополнительно нужен `API_KEY` (заголовок `x-rapidapi-key`).
+- при реальном запросе клиент требует свой `baseURL`.
 
-> `API_KEY` — ключ [API-Sports](https://www.api-sports.io/). Без него suite `apiOAuth` не запустится. Значения для CI хранятся в GitHub Secrets (`BASE_URL_*`, `API_KEY`).
+Механизм ролей (`UserRole.AUTHORIZED` + заголовок `API_KEY`) остаётся в `BaseApiClient` на случай добавления авторизованного API. Значения для CI хранятся в GitHub Secrets (`BASE_URL_*`).
 
 ## Запуск тестов
 
@@ -85,9 +79,6 @@ npm run test:api:no_oauth
 # UI (нужен Chromium)
 npx playwright install chromium
 npm run test:ui
-
-# API с авторизацией
-npm run test:api:oauth
 
 # Все проекты
 npm run test:all
@@ -109,7 +100,6 @@ npm run ui:mode
 ```bash
 make test-no_oauth   # API без авторизации
 make test-ui         # UI
-make test-oauth      # API с авторизацией
 make test            # все тесты
 ```
 
@@ -118,7 +108,6 @@ make test            # все тесты
 | Команда | Описание |
 |---------|----------|
 | `make test` | Все тесты через Docker Compose |
-| `make test-oauth` | API с авторизацией |
 | `make test-no_oauth` | API без авторизации |
 | `make test-ui` | UI-тесты |
 | `make build` | Сборка образа |
@@ -129,14 +118,13 @@ make test            # все тесты
 | `make debug` | Shell внутри контейнера |
 | `make help` | Список команд |
 
-Образ: `mcr.microsoft.com/playwright:v1.60.0-noble`. В compose используется анонимный volume `/app/node_modules`, чтобы хостовые `node_modules` не перекрывали зависимости из образа.
+Образ: `mcr.microsoft.com/playwright:v1.65.0-noble`. В compose используется анонимный volume `/app/node_modules`, чтобы хостовые `node_modules` не перекрывали зависимости из образа.
 
 ## Playwright-проекты
 
 | Проект | `testDir` | `baseURL` | Авторизация |
 |--------|-----------|-----------|-------------|
 | `noOAuth` | `api/tests/noAuth` | `BASE_URL_NO_AUTH` | нет |
-| `apiOAuth` | `api/tests/apiOAuth` | `BASE_URL_AUTH` | да (`API_KEY` при `UserRole.AUTHORIZED`) |
 | `ui` | `ui/tests` | `BASE_URL_UI` | нет |
 
 Проекты независимы: нет `setup`-проекта и нет `dependencies` между ними. Каждый можно запускать отдельно через `--project=...`.
@@ -146,15 +134,14 @@ make test            # все тесты
 ```
 ├── api/
 │   ├── assertions/          # RequestAssertions
-│   ├── clients/             # BaseApiClient, AlbumsApiClient, HockeyApiClient
+│   ├── clients/             # BaseApiClient, AlbumsApiClient
 │   ├── data/                # URL-билдеры
 │   ├── fixtures/            # Playwright fixtures для API
 │   ├── tests/
-│   │   ├── apiOAuth/        # тесты с авторизацией
 │   │   └── noAuth/          # тесты без авторизации
 │   ├── types/
 │   │   ├── common/          # branded types, HttpStatusCode, ValidationResult
-│   │   └── response/        # Zod- и AJV-схемы ответов
+│   │   └── response/        # Zod-схемы ответов
 │   └── utils/               # env, logger, валидаторы
 ├── ui/
 │   ├── components/          # Component Objects
@@ -176,9 +163,9 @@ make test            # все тесты
 Паттерн **API Client**:
 
 - `BaseApiClient` — HTTP-методы и логирование;
-- `AlbumsApiClient` / `HockeyApiClient` — клиенты конкретных API;
-- `RequestAssertions` — проверки статуса и схемы (Zod / AJV);
-- branded types (`AlbumId`, `CountryCode`) и enum `HttpStatusCode` — типобезопасные параметры.
+- `AlbumsApiClient` — клиент конкретного API;
+- `RequestAssertions` — проверки статуса и схемы (Zod);
+- branded types (`AlbumId`) и enum `HttpStatusCode` — типобезопасные параметры.
 
 Пример (актуальный стиль тестов):
 
@@ -254,16 +241,6 @@ export type Album = z.infer<typeof AlbumSchema>;
 ```typescript
 await requestAssertions.checkJSONResponseSchemaZod(AlbumSchema, response);
 ```
-
-### AJV
-
-Используется для apiSportsIO (hockey). JSON Schema с `additionalProperties: false` — строгая проверка лишних полей:
-
-```typescript
-await requestAssertions.checkJSONResponseSchemaAjv(CountryInfoArraySchemaAjv, response);
-```
-
-Оба валидатора живут осознанно: Zod — для публичного API, AJV — где нужна строгая JSON Schema.
 
 ## Отчёты
 

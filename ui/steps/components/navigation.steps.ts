@@ -15,4 +15,11 @@ export class NavigationSteps {
       await expect(this.navigation.getNavigationElement()).toBeVisible();
     });
   }
+
+  async selectEmployerMode(): Promise<void> {
+    await test.step("Select employer mode in user type switcher", async () => {
+      // Радио-инпут перекрыт визуальным лейблом magritte — кликаем по label
+      await this.navigation.employerModeLabel.click();
+    });
+  }
 }
