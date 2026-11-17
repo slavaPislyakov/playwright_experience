@@ -41,6 +41,6 @@ const extensionProbeError: RegExp = /Fetch API cannot load chrome-extension:/;
 test.use({ jsErrorAllowlist: [extensionProbeError] });
 ```
 
-`failOnJSError: false` — последнее средство, когда шум нельзя выразить регулярками; в существующих спеках так помечены mainPage и jobInOtherCitiesBlock (известный долг из `ANALYSIS.md` — стремиться убрать).
+`failOnJSError: false` — последнее средство, когда шум нельзя выразить регулярками; в существующих спеках так помечены mainPage и jobInOtherCitiesBlock (известный техдолг — стремиться убрать).
 
 `pageWithMonitoring` на живом сайте может флакать от сторонних баннеров/аналитики с ответом ≥ 400 — используй осознанно.
