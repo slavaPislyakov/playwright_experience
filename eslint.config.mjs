@@ -182,10 +182,11 @@ const typeScriptConfig = {
           // API assertions
           "checkStatusCode",
           "checkJSONResponseSchemaZod",
+          "checkJSONResponseSchemaZodFails",
           "checkEveryItemHasFieldValue",
-          "partialCompareTwoObjects",
-          "fullComparingTwoObjects",
-          "validateResponse",
+          "checkResponseItemsCount",
+          "checkItemsSortedBy",
+          "checkEveryItemContainsTextInFields",
           // UI assertions
           "checkAnonymousHeaderText",
           "checkNavigationElementIsVisible",

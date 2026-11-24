@@ -18,7 +18,7 @@ import { test } from "@@/api/fixtures/fixtures";
 
 import { TodosArraySchema } from "@@/api/types/response/jsonplaceholder/todos/zod/todosSchemas";
 
-import { JsonPlaceholderErrorSchema } from "@@/api/types/response/jsonplaceholder/error/zod/errorSchemas";
+import { EmptyJsonPlaceholderResponseSchema } from "@@/api/types/response/jsonplaceholder/error/zod/errorSchemas";
 
 import { TodoId } from "@@/api/types/common/brandedTypes";
 import { HttpStatusCode } from "@@/api/types/common/httpStatusCode";
@@ -35,7 +35,7 @@ test.describe("Check 'TODOS' endpoint (Zod validation)", () => {
   test("Check 'GET /todos/{id}' with non-existing todo returns error", async ({ todosApiClient, requestAssertions }) => {
     const response = await todosApiClient.getTodoById(TodoId(999999));
     await requestAssertions.checkStatusCode(response.status(), HttpStatusCode.NOT_FOUND);
-    await requestAssertions.checkJSONResponseSchemaZod(JsonPlaceholderErrorSchema, response);
+    await requestAssertions.checkJSONResponseSchemaZod(EmptyJsonPlaceholderResponseSchema, response);
   });
 });
 

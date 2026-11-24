@@ -90,3 +90,72 @@ test.describe("Check 'POSTS' endpoint mutations (Zod validation)", () => {
     await requestAssertions.checkJSONResponseSchemaZod(EmptyPostResponseSchema, response);
   });
 });
+
+test.describe("Check 'POSTS' endpoint collection params (Zod validation)", () => {
+  const postsLimit: number = 5;
+  const postsPage: number = 2;
+  const sortByIdField: string = "id";
+  const sortByTitleField: string = "title";
+  const sortOrderAsc: "asc" | "desc" = "asc";
+  const sortOrderDesc: "asc" | "desc" = "desc";
+  const searchTerm: string = "voluptate";
+  const expectedSearchResultsCount: number = 54;
+  const searchFields: readonly string[] = ["title", "body"];
+
+  test("Check 'GET /posts?_limit={limit}' endpoint", async ({ postsApiClient, requestAssertions }) => {
+    const response = await postsApiClient.getPostsWithLimit(postsLimit);
+    await requestAssertions.checkStatusCode(response.status(), HttpStatusCode.OK);
+    await requestAssertions.checkJSONResponseSchemaZod(PostsArraySchema, response);
+    await requestAssertions.checkResponseItemsCount(response, postsLimit);
+  });
+
+  test("Check 'GET /posts?_limit={limit}&_page={page}' endpoint", async ({ postsApiClient, requestAssertions }) => {
+    const response = await postsApiClient.getPostsWithLimitAndPage(postsLimit, postsPage);
+    await requestAssertions.checkStatusCode(response.status(), HttpStatusCode.OK);
+    await requestAssertions.checkJSONResponseSchemaZod(PostsArraySchema, response);
+    await requestAssertions.checkResponseItemsCount(response, postsLimit);
+    await requestAssertions.checkItemsSortedBy(response, sortByIdField, sortOrderAsc);
+  });
+
+  test("Check 'GET /posts?_sort=id&_order=desc' endpoint", async ({ postsApiClient, requestAssertions }) => {
+    const response = await postsApiClient.getPostsSortedBy(sortByIdField, sortOrderDesc);
+    await requestAssertions.checkStatusCode(response.status(), HttpStatusCode.OK);
+    await requestAssertions.checkJSONResponseSchemaZod(PostsArraySchema, response);
+    await requestAssertions.checkItemsSortedBy(response, sortByIdField, sortOrderDesc);
+  });
+
+  test("Check 'GET /posts?_sort=title&_order=asc' endpoint", async ({ postsApiClient, requestAssertions }) => {
+    const response = await postsApiClient.getPostsSortedBy(sortByTitleField, sortOrderAsc);
+    await requestAssertions.checkStatusCode(response.status(), HttpStatusCode.OK);
+    await requestAssertions.checkJSONResponseSchemaZod(PostsArraySchema, response);
+    await requestAssertions.checkItemsSortedBy(response, sortByTitleField, sortOrderAsc);
+  });
+
+  test("Check 'GET /posts?q={term}' endpoint", async ({ postsApiClient, requestAssertions }) => {
+    const response = await postsApiClient.searchPosts(searchTerm);
+    await requestAssertions.checkStatusCode(response.status(), HttpStatusCode.OK);
+    await requestAssertions.checkJSONResponseSchemaZod(PostsArraySchema, response);
+    await requestAssertions.checkResponseItemsCount(response, expectedSearchResultsCount);
+    await requestAssertions.checkEveryItemContainsTextInFields(response, searchFields, searchTerm);
+  });
+});
+
+test.describe("Check 'POSTS' endpoint negative scenarios (Zod validation)", () => {
+  test("Check 'GET /unknown-route' endpoint returns error", async ({ postsApiClient, requestAssertions }) => {
+    const response = await postsApiClient.getUnknownRoute();
+    await requestAssertions.checkStatusCode(response.status(), HttpStatusCode.NOT_FOUND);
+    await requestAssertions.checkJSONResponseSchemaZod(EmptyJsonPlaceholderResponseSchema, response);
+  });
+
+  test("Check 'GET /posts/{id}' with non-numeric id returns error", async ({ postsApiClient, requestAssertions }) => {
+    const response = await postsApiClient.getPostByNonNumericId();
+    await requestAssertions.checkStatusCode(response.status(), HttpStatusCode.NOT_FOUND);
+    await requestAssertions.checkJSONResponseSchemaZod(EmptyJsonPlaceholderResponseSchema, response);
+  });
+
+  test("Check 'POST /posts' with empty body returns schema-invalid response", async ({ postsApiClient, requestAssertions }) => {
+    const response = await postsApiClient.createPostWithEmptyBody();
+    await requestAssertions.checkStatusCode(response.status(), HttpStatusCode.CREATED);
+    await requestAssertions.checkJSONResponseSchemaZodFails(PostSchema, response);
+  });
+});
