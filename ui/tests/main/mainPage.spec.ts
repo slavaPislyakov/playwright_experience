@@ -1,10 +1,8 @@
+import { liveSiteConsoleNoise } from "@@/ui/data/consoleNoise";
+
 import { test } from "@@/ui/fixtures/fixture";
 
-// Шум фингерпринт-скриптов сайта: попытки загрузить chrome-extension://-ресурсы
-// для детекта установленных расширений браузера, а не ошибка самого сайта
-const extensionProbeError: RegExp = /Fetch API cannot load chrome-extension:/;
-
-test.use({ jsErrorAllowlist: [extensionProbeError] });
+test.use({ jsErrorAllowlist: [liveSiteConsoleNoise] });
 
 test.describe("Main page:", () => {
   test.beforeEach(async ({ mainPageSteps }) => {
