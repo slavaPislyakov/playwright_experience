@@ -51,6 +51,20 @@ export class SearchResultsPageSteps extends CommonSteps {
     }, { params: { blockName } });
   }
 
+  async checkSearchFiltersAreVisible(): Promise<void> {
+    await test.step("Check search filters panel with chips and filters button is visible", async () => {
+      await expect(this.searchResultsPage.searchFiltersPanel).toBeVisible();
+      await expect(this.searchResultsPage.searchFiltersChips).toBeVisible();
+      await expect(this.searchResultsPage.searchFiltersButton).toBeVisible();
+    });
+  }
+
+  async selectNextVacanciesPageButton(): Promise<void> {
+    await test.step("Select next vacancies page button in pager", async () => {
+      await this.searchResultsPage.selectNextResultsButton();
+    });
+  }
+
   async getFirstVacancyTitleHref(): Promise<string> {
     return test.step("Get first vacancy title href from search results", async () => {
       // Ссылки вакансий открываются в новой вкладке (target="_blank"), поэтому
@@ -58,6 +72,21 @@ export class SearchResultsPageSteps extends CommonSteps {
       // Здесь нужно ЗНАЧЕНИЕ href для перехода, а не assertion —
       // web-first assertion (prefer-web-first-assertions) семантически не подходит
       const href = await this.searchResultsPage.vacancyItemTitles.first().getAttribute("href");
+
+      // eslint-disable-next-line playwright/prefer-web-first-assertions
+      expect(href).toBeTruthy();
+
+      return href ?? "";
+    });
+  }
+
+  async getFirstVacancyTitleHrefOnSite(): Promise<string> {
+    return test.step("Get first on-site vacancy title href from search results", async () => {
+      // Рекламные карточки выдачи могут вести на внешний hh.ru — переходим только
+      // по ссылкам тестируемого сайта (см. комментарий в SearchResultsPage).
+      // Здесь нужно ЗНАЧЕНИЕ href для перехода, а не assertion —
+      // web-first assertion (prefer-web-first-assertions) семантически не подходит
+      const href = await this.searchResultsPage.vacancyItemTitlesOnSite.first().getAttribute("href");
 
       // eslint-disable-next-line playwright/prefer-web-first-assertions
       expect(href).toBeTruthy();

@@ -16,6 +16,16 @@ export class NavigationSteps {
     });
   }
 
+  async checkNavigationMenuItemsAreVisible(): Promise<void> {
+    await test.step("Check navigation menu items are visible", async () => {
+      const menuItems = this.navigation.getNavigationMenuItems();
+      const itemsCount = await menuItems.count();
+
+      expect(itemsCount).toBeGreaterThan(0);
+      await expect(menuItems.first()).toBeVisible();
+    });
+  }
+
   async selectEmployerMode(): Promise<void> {
     await test.step("Select employer mode in user type switcher", async () => {
       // Радио-инпут перекрыт визуальным лейблом magritte — кликаем по label

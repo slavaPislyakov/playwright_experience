@@ -45,11 +45,39 @@ export class VacancyPageSteps extends CommonSteps {
   }
 
   async checkVacancyContentBlocksAreVisible(): Promise<void> {
-    await test.step("Check vacancy experience and skills blocks are present", async () => {
+    await test.step("Check vacancy experience and skills blocks are visible if present", async () => {
+      // Опыт работы и навыки — опциональные данные вакансий hh: часть вакансий публикуется
+      // без этих блоков, а первая вакансия выдачи ротируется, поэтому блок проверяем
+      // только при его фактическом наличии на странице
+      const experienceCount = await this.vacancyPage.vacancyExperience.count();
+
+      // Условная проверка осознанная: блок опционален, это не забытый assert
+      // eslint-disable-next-line playwright/no-conditional-in-test
+      if (experienceCount > 0) {
+        await expect(this.vacancyPage.vacancyExperience).toBeVisible();
+      }
+
       const skillsCount = await this.vacancyPage.getVacancySkillsCount();
 
-      await expect(this.vacancyPage.vacancyExperience).toBeVisible();
-      expect(skillsCount).toBeGreaterThan(0);
+      // Условная проверка осознанная: блок опционален, это не забытый assert
+      // eslint-disable-next-line playwright/no-conditional-in-test
+      if (skillsCount > 0) {
+        await expect(this.vacancyPage.vacancySkills.first()).toBeVisible();
+      }
     });
+  }
+
+  async checkSimilarVacanciesBlockIsVisible(): Promise<void> {
+    await test.step("Check similar vacancies block is visible", async () => {
+      // Блок рендерится только при скролле, поэтому проверке видимости предшествует прокрутка
+      await this.vacancyPage.scrollToSimilarVacanciesBlock();
+      await expect(this.vacancyPage.similarVacanciesBlock).toBeVisible();
+    });
+  }
+
+  async checkPageTitleContains(expected: string): Promise<void> {
+    await test.step(`Check page title contains value ${expected}`, async () => {
+      await expect(this.page).toHaveTitle(new RegExp(expected, "i"));
+    }, { params: { expected } });
   }
 }
