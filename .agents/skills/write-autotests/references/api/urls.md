@@ -28,11 +28,15 @@ Branded-типы не позволяют передать «сырой» number/
 ```typescript
 export type TodoId = number & { readonly __brand: unique symbol };
 
-export const TodoId = (id: number): TodoId => id as TodoId;
+export const TodoId = (id: number): TodoId => {
+  assertPositiveIntId("TodoId", id);
+
+  return id as TodoId;
+};
 ```
 
 Строковые идентификаторы (коды стран и т.п.) — тот же паттерн с `string & { readonly __brand: unique symbol }`; добавляй по мере появления в тестируемых API.
 
-> Ограничение branded-типов: конструктор не валидирует значение — `TodoId(-42)` «валиден». Бренд защищает от перепутанных аргументов, а не от мусорных значений; для REST-идентификаторов этого достаточно.
+> Защита в два слоя: бренд на этапе компиляции не даёт перепутать аргументы (`getTodoById(UserId(1))` не скомпилируется), а конструктор в рантайме отбрасывает мусорные значения — общий хелпер `assertPositiveIntId` в начале того же файла требует целое число ≥ 1 и бросает `Error` для остальных (`TodoId(-42)`). Новый идентификатор добавляй с той же проверкой.
 
 Дальше по цепочке: схемы ответов — [schemas.md](schemas.md), метод клиента — [clients.md](clients.md).

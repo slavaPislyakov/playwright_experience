@@ -74,18 +74,18 @@ make help                # docker-обёртки: make test-no_oauth, test-ui, t
 - `test` в спеках импортируется только из фикстур проекта (`@@/api/fixtures/fixtures`, `@@/ui/fixtures/fixture`), не из `@playwright/test`.
 - Всё оборачивается в `test.step` внутри клиентов/степов; в спеке `test.step` вручную не добавляется.
 - Статусы — только enum `HttpStatusCode`; id — branded-конструкторы (`PostId(1)`); без магических чисел.
-- Новые `check*`-методы ассертов регистрируются в `eslint.config.mjs` → `playwright/expect-expect` → `assertFunctionPatterns`, иначе lint упадёт.
+- Новые `check*`-методы ассертов регистрируются в `eslint.config.mjs` → `playwright/expect-expect` → `assertFunctionPatterns`, иначе линтер предупредит `Test has no assertions` (правило уровня `warn`, гейт не роняет — регистрацию пропускать нельзя).
 - Стиль: `import type` для типов, явные типы возврата, двойные кавычки, длина строки ≤ 120, имена тестов/степов на английском, комментарии «почему» можно на русском. Импорты не расставлять руками — `npm run lint:fix` (алиас `@@/`, порядок задаёт `import-x/order` с pathGroups).
 - Фикстуры и документация env: переменные через `optionalEnv`/`requireEnv` из `api/utils/envUtils.ts`; `API_KEY` нужен только для роли `UserRole.AUTHORIZED`. `.env` не коммитится (см. `.env.example`).
 
 ## Готчи
 
 - Playwright ≥ 1.65: локаторы PO/CO **нельзя** инициализировать field-initializer'ом (`readonly x = this.page.getByRole(...)`) — падает в рантайме. Только присваивание в теле конструктора.
-- UI-проект гоняет живой сайт: `fullyParallel: false` внутри файла, тесты по одному; JS/HTTP-ошибки ловит фикстура `pageWithMonitoring` (allowlist шума — через `test.use({ jsErrorAllowlist: [...] })`).
+- UI-проект гоняет живой сайт: `fullyParallel: false` задан на уровне проекта `ui` в `playwright.config.ts` (в спеках не дублируется), тесты по одному; JS/HTTP-ошибки ловит фикстура `pageWithMonitoring` (allowlist шума — через `test.use({ jsErrorAllowlist: [...] })`).
 - Аттачи HTTP request/response в Allure/HTML-отчёт делаются автоматически в `BaseApiClient` (через `api/utils/allureAttachments.ts`) и цепляются к степу, а не к тесту верхнего уровня.
 - `BASE_URL_AUTH` в `.env` — легаси от удалённого hockey-клиента, не используется.
 - Аria-снапшоты вместо пиксель-диффов — осознанное решение (живой сайт, динамический контент).
 
 ## Документы репозитория
 
-- `README.md` — архитектура и запуск; `ui/Readme.md` — правила иерархии UI.
+- `README.md` — архитектура и запуск; `ui/Readme.md` — правила иерархии UI; `docs/skills-and-rules.md` — справочник скиллов, субагентов и правил: как вызывать, за что отвечают.

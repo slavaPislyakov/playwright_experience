@@ -24,7 +24,7 @@ description: Как писать API- и UI-автотесты в этом Playw
 4. **Никаких магических чисел и строк.** HTTP-статусы — только enum `HttpStatusCode`; идентификаторы и коды — branded-конструкторы (`AlbumId(1)`).
 5. **Схемы строгие.** Zod — `z.strictObject` (лишние поля отклоняются). Слабые `z.object` без причины не появляются.
 6. **Типы импортируются через `import type`** (`verbatimModuleSyntax`), у каждой функции явный тип возврата (`explicit-function-return-type`), `await` только у thenable, «висящих» промисов нет.
-7. **Двойные кавычки, точки с запятой, отступ 2, trailing commas в многострочных конструкциях, длина строки ≤ 120.** Порядок импортов задаёт `import/order` c `pathGroups` под структуру проекта и пустыми строками между ними — не расставляй вручную, после написания запусти `npm run lint:fix`.
+7. **Двойные кавычки, точки с запятой, отступ 2, trailing commas в многострочных конструкциях, длина строки ≤ 120.** Порядок импортов задаёт `import-x/order` c `pathGroups` под структуру проекта и пустыми строками между ними — не расставляй вручную, после написания запусти `npm run lint:fix`.
 8. **Названия тестов, степов и сообщений — на английском** (`Check 'GET /albums' endpoint`, `Select 'find' button`). Комментарии-объяснения «почему» — можно по-русски.
 9. **Новые ассерт-методы `check*` регистрируются в `eslint.config.mjs`** → `playwright/expect-expect` → `assertFunctionPatterns`, иначе линт потребует `expect` в спеке.
 10. **`test.only`/`test.skip` запрещены** (`playwright/no-focused-test: error`, `no-skipped-test: warn`). Если skip неизбежен — с Playwright 1.65 указывай причину: `test.skip("Not implemented yet")` — она попадает в аннотации теста в отчёте.
@@ -89,21 +89,22 @@ test.describe("Check 'ALBUMS' endpoint (Zod validation)", () => {
 UI (`ui/tests/main/searchJob.spec.ts`):
 
 ```typescript
+import { liveSiteConsoleNoise } from "@@/ui/data/consoleNoise";
+
 import { test } from "@@/ui/fixtures/fixture";
 
-// Шум фингерпринт-скриптов сайта, а не ошибка самого сайта
-const extensionProbeError: RegExp = /Fetch API cannot load chrome-extension:/;
-
-test.use({ jsErrorAllowlist: [extensionProbeError] });
+test.use({ jsErrorAllowlist: [liveSiteConsoleNoise] });
 
 test.describe("Search jobs and check browser console", () => {
   test.beforeEach(async ({ mainPageSteps }) => {
     await mainPageSteps.navigateToPage();
+    await mainPageSteps.cookieBannerSteps.acceptCookiesPolicyIfVisible();
   });
 
   test("Search 'Javascript' jobs", async ({ mainPageSteps }) => {
     await mainPageSteps.typeTextInSearchField("Javascript");
     await mainPageSteps.selectFindButton();
+    await mainPageSteps.registrationModalSteps.selectModalCloseButton();
     await mainPageSteps.checkCurrentUrl("Javascript");
   });
 });

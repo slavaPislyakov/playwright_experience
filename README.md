@@ -264,3 +264,5 @@ npm run typecheck     # tsc --noEmit
 ```
 
 Перед коммитом husky запускает `lint-staged` (см. `package.json` → `lint-staged`). В CI job `static-checks` дополнительно гоняет `typecheck` и `lint` до тестовых jobs.
+
+Какие скиллы, субагенты и правила есть в проекте и как их вызывать — в справочнике [`docs/skills-and-rules.md`](docs/skills-and-rules.md).
